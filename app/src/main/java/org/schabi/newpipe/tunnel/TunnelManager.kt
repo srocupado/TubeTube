@@ -7,8 +7,6 @@ import android.os.Looper
 import android.util.Log
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.BehaviorSubject
-import java.net.InetAddress
-import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.ProxySelector
 import java.net.URL
@@ -133,10 +131,7 @@ object TunnelManager {
             TunnelMode.TOR -> {
                 val port = torHttpPort
                 if (port > 0) {
-                    Proxy(
-                        Proxy.Type.HTTP,
-                        InetSocketAddress(InetAddress.getLoopbackAddress(), port)
-                    )
+                    Loopback.httpProxy(port)
                 } else {
                     Blackhole.proxy
                 }

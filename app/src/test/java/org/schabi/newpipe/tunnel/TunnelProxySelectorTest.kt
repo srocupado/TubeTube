@@ -1,5 +1,7 @@
 package org.schabi.newpipe.tunnel
 
+import java.net.Inet4Address
+import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.URI
 import org.junit.Assert.assertEquals
@@ -21,5 +23,15 @@ class TunnelProxySelectorTest {
         assertEquals(1, proxies.size)
         assertNotEquals(Proxy.NO_PROXY, proxies[0])
         assertEquals(Blackhole.proxy, proxies[0])
+    }
+
+    @Test
+    fun localProxiesUseIpv4Loopback() {
+        // Tor only listens on 127.0.0.1; on Android getLoopbackAddress() is ::1 (refused)
+        for (proxy in listOf(Loopback.httpProxy(9080), Blackhole.proxy)) {
+            val address = (proxy.address() as InetSocketAddress).address
+            assertEquals(proxy.toString(), "127.0.0.1", address.hostAddress)
+            assertEquals(proxy.toString(), true, address is Inet4Address)
+        }
     }
 }

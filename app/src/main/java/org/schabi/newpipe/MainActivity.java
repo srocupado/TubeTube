@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
         // ReleaseVersionUtil.INSTANCE.isReleaseApk() will be true only for main official build
         // We want every release build (nightly, nightly-refactor) to show the popup
         if (!DEBUG) {
-            showKeepAndroidDialog();
+            // TubeTube: NewPipe's own "Keep Android Open" notice is not shown (it names NewPipe)
             showApi23RequirementDialog();
         }
 

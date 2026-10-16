@@ -2,8 +2,6 @@ package org.schabi.newpipe.tunnel
 
 import android.util.Log
 import java.io.IOException
-import java.net.InetAddress
-import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.ServerSocket
 import kotlin.concurrent.thread
@@ -21,11 +19,11 @@ internal object Blackhole {
     private var serverSocket: ServerSocket? = null
 
     val proxy: Proxy by lazy {
-        Proxy(Proxy.Type.HTTP, InetSocketAddress(InetAddress.getLoopbackAddress(), start()))
+        Loopback.httpProxy(start())
     }
 
     private fun start(): Int {
-        val socket = ServerSocket(0, 50, InetAddress.getLoopbackAddress())
+        val socket = ServerSocket(0, 50, Loopback.IPV4)
         serverSocket = socket
         thread(name = "tunnel-blackhole", isDaemon = true) {
             while (!socket.isClosed) {

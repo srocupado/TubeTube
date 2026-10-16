@@ -89,6 +89,7 @@ import org.schabi.newpipe.tunnel.TunnelStatus;
 import org.schabi.newpipe.util.Constants;
 import org.schabi.newpipe.util.DeviceUtils;
 import org.schabi.newpipe.util.KioskTranslator;
+import org.schabi.newpipe.util.KioskVisibility;
 import org.schabi.newpipe.util.Localization;
 import org.schabi.newpipe.util.NavigationHelper;
 import org.schabi.newpipe.util.PeertubeHelper;
@@ -306,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
 
         int kioskMenuItemId = 0;
 
-        for (final String ks : service.getKioskList().getAvailableKiosks()) {
+        for (final String ks : KioskVisibility.availableKiosks(service)) {
             drawerLayoutBinding.navigation.getMenu()
                     .add(R.id.menu_kiosks_group, kioskMenuItemId, 0, KioskTranslator
                             .getTranslatedKioskName(ks, this))
@@ -382,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
     private void kioskSelected(final MenuItem item) throws ExtractionException {
         final StreamingService currentService = ServiceHelper.getSelectedService(this);
         int kioskMenuItemId = 0;
-        for (final String kioskId : currentService.getKioskList().getAvailableKiosks()) {
+        for (final String kioskId : KioskVisibility.availableKiosks(currentService)) {
             if (kioskMenuItemId == item.getItemId()) {
                 NavigationHelper.openKioskFragment(getSupportFragmentManager(),
                         currentService.getServiceId(), kioskId);

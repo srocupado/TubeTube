@@ -24,6 +24,7 @@ import org.schabi.newpipe.error.ErrorUtil;
 import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.util.KioskTranslator;
+import org.schabi.newpipe.util.KioskVisibility;
 import org.schabi.newpipe.util.ServiceHelper;
 import org.schabi.newpipe.util.ThemeHelper;
 
@@ -90,7 +91,7 @@ public class SelectKioskFragment extends DialogFragment {
 
         SelectKioskAdapter() throws Exception {
             for (final StreamingService service : NewPipe.getServices()) {
-                for (final String kioskId : service.getKioskList().getAvailableKiosks()) {
+                for (final String kioskId : KioskVisibility.availableKiosks(service)) {
                     final String name = String.format(getString(R.string.service_kiosk_string),
                             service.getServiceInfo().getName(),
                             KioskTranslator.getTranslatedKioskName(kioskId, getContext()));

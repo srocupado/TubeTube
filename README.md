@@ -58,6 +58,13 @@ que já esteja no arquivo.
 - **Privacidade:** a consulta passa pelo túnel e envia só os 4 primeiros caracteres do SHA-256 do ID
   do vídeo. O servidor devolve os trechos de todos os vídeos com esse prefixo, sem saber qual você abriu.
 
+### Importar playlists do YouTube (Takeout)
+- **Configurações → Backup e restauração → Importar playlists do YouTube (Takeout)**. Escolha o
+  `.zip` do Takeout inteiro (não precisa extrair) ou o `.csv` de uma playlist.
+- Cada playlist vira uma playlist local, em **Playlists favoritas**. Os detalhes de cada vídeo são
+  carregados pelo túnel; vídeos apagados ou privados são pulados. Playlists com o mesmo nome de uma
+  que já existe não são importadas de novo.
+
 ### Aba Sugestões (calculada no aparelho)
 - Adicione em **Configurações → Conteúdo → Conteúdo da tela inicial → + → Sugestões**.
 - Parte dos últimos 10 vídeos do seu histórico (e, se o histórico for curto, de vídeos novos dos

@@ -21,11 +21,15 @@ import androidx.preference.PreferenceManager;
 
 import com.grack.nanojson.JsonParserException;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.Disposable;
+
 import org.schabi.newpipe.NewPipeDatabase;
 import org.schabi.newpipe.R;
 import org.schabi.newpipe.error.ErrorInfo;
 import org.schabi.newpipe.error.ErrorUtil;
 import org.schabi.newpipe.error.UserAction;
+import org.schabi.newpipe.local.playlist.takeout.TakeoutPlaylistImport;
 import org.schabi.newpipe.local.subscription.SubscriptionsImportExportHelper;
 import org.schabi.newpipe.settings.export.BackupFileLocator;
 import org.schabi.newpipe.settings.export.ImportExportManager;
@@ -55,7 +59,11 @@ public class BackupRestoreSettingsFragment extends BasePreferenceFragment {
     private final ActivityResultLauncher<Intent> requestExportPathLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                     this::requestExportPathResult);
+    private final ActivityResultLauncher<Intent> requestTakeoutPlaylistsLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                    this::requestTakeoutPlaylistsResult);
     private SubscriptionsImportExportHelper importExportHelper;
+    private Disposable takeoutImportState;
 
 
     @Override
@@ -140,6 +148,46 @@ public class BackupRestoreSettingsFragment extends BasePreferenceFragment {
             return true;
         });
 
+        final Preference takeoutPlaylistsPreference =
+                requirePreference(R.string.takeout_playlists_import_key);
+        takeoutPlaylistsPreference.setOnPreferenceClickListener(preference -> {
+            if (!TakeoutPlaylistImport.INSTANCE.isRunning()) {
+                NoFileManagerSafeGuard.launchSafe(
+                        requestTakeoutPlaylistsLauncher,
+                        StoredFileHelper.getPicker(requireContext(), "*/*"),
+                        TAG,
+                        getContext()
+                );
+            }
+            return true;
+        });
+        takeoutImportState = TakeoutPlaylistImport.INSTANCE.state()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(state -> {
+                    if (state instanceof TakeoutPlaylistImport.State.Running running) {
+                        takeoutPlaylistsPreference.setSummary(getString(
+                                R.string.takeout_playlists_import_running,
+                                running.getDone(), running.getTotal()));
+                    } else {
+                        takeoutPlaylistsPreference.setSummary(
+                                R.string.takeout_playlists_import_summary);
+                    }
+                });
+    }
+
+    @Override
+    public void onDestroy() {
+        if (takeoutImportState != null) {
+            takeoutImportState.dispose();
+        }
+        super.onDestroy();
+    }
+
+    private void requestTakeoutPlaylistsResult(final ActivityResult result) {
+        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null
+                && result.getData().getData() != null) {
+            TakeoutPlaylistImport.INSTANCE.start(requireContext(), result.getData().getData());
+        }
     }
 
     private void requestExportPathResult(final ActivityResult result) {

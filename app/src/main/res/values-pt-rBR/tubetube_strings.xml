@@ -53,4 +53,10 @@
     <string name="sponsorblock_info">Os trechos são marcados pela comunidade: vídeos muito recentes podem ainda não ter marcação. Produtos que aparecem na imagem não têm como ser removidos.</string>
     <string name="suggestions_tab_title">Sugestões</string>
     <string name="suggestions_empty">Assista alguns vídeos ou importe suas inscrições para receber sugestões</string>
+    <string name="takeout_playlists_import_title">Importar playlists do YouTube (Takeout)</string>
+    <string name="takeout_playlists_import_summary">Escolha o .zip do Takeout ou o .csv de uma playlist. Elas aparecem em Playlists favoritas</string>
+    <string name="takeout_playlists_import_running">Importando playlists… %1$d de %2$d vídeos</string>
+    <string name="takeout_playlists_import_done">Playlists importadas: %1$d (%2$d vídeos). Vídeos indisponíveis pulados: %3$d. Já existiam: %4$d</string>
+    <string name="takeout_playlists_import_none">Nenhuma playlist encontrada neste arquivo</string>
+    <string name="takeout_playlists_import_failed">Falha ao importar playlists: %s</string>
 </resources>

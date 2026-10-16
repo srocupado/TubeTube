@@ -53,4 +53,10 @@
     <string name="sponsorblock_info">Segments are marked by the community: very new videos may not be marked yet. Products shown on screen cannot be removed.</string>
     <string name="suggestions_tab_title">Suggestions</string>
     <string name="suggestions_empty">Watch a few videos or import your subscriptions to get suggestions</string>
+    <string name="takeout_playlists_import_title">Import YouTube playlists (Takeout)</string>
+    <string name="takeout_playlists_import_summary">Pick the Takeout .zip or a playlist .csv. They show up under Bookmarked Playlists</string>
+    <string name="takeout_playlists_import_running">Importing playlists… %1$d of %2$d videos</string>
+    <string name="takeout_playlists_import_done">Playlists imported: %1$d (%2$d videos). Unavailable videos skipped: %3$d. Already present: %4$d</string>
+    <string name="takeout_playlists_import_none">No playlist found in this file</string>
+    <string name="takeout_playlists_import_failed">Playlist import failed: %s</string>
 </resources>

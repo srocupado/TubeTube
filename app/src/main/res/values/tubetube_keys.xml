@@ -31,4 +31,5 @@
         <item>selfpromo</item>
         <item>interaction</item>
     </string-array>
+    <string name="takeout_playlists_import_key" translatable="false">takeout_playlists_import</string>
 </resources>

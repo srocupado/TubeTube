@@ -10,7 +10,9 @@ Cliente de YouTube para Android focado em privacidade. É um fork do
 - **O Google não vê o seu IP.** Todo o tráfego do app sai por um túnel embutido:
   - **Tor**: anonimato máximo, sem depender de ninguém, mais lento;
   - **VPN WireGuard** (Mullvad, IVPN, Proton...): rápido, mas você confia no provedor.
-- **Falha fechada.** Não existe modo "direto". Se o túnel cair, as requisições falham em vez de sair sem proteção.
+  - **Direto** (opcional, você escolhe): sem túnel, o mais rápido. Continua sem anúncios e sem conta
+    Google, mas o YouTube vê o seu IP.
+- **Falha fechada** nos modos Tor e VPN: se o túnel cair, as requisições falham em vez de sair sem proteção.
 - Funciona sozinho: não precisa de servidor próprio, do Orbot nem de app de VPN separado.
 
 ## Instalação

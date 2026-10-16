@@ -6,6 +6,7 @@
     <string-array name="tunnel_mode_entries">
         <item>Tor (anonimato máximo, mais lento)</item>
         <item>VPN WireGuard (rápido)</item>
+        <item>Direto, sem túnel (mais rápido, o Google vê seu IP)</item>
     </string-array>
     <string name="tunnel_status_title">Status</string>
     <string name="tunnel_status_connecting">Conectando… nada sai do aparelho até o túnel subir</string>
@@ -27,13 +28,14 @@
     <string name="tunnel_vpn_permission_title">Permitir VPN</string>
     <string name="tunnel_vpn_permission_summary">O Android pede uma vez a permissão para criar o túnel só do app</string>
     <string name="tunnel_vpn_permission_denied">Sem essa permissão o túnel WireGuard não inicia</string>
-    <string name="tunnel_info">O TubeTube nunca se conecta direto: se o túnel cair, as requisições falham em vez de sair sem proteção.</string>
+    <string name="tunnel_info">Nos modos Tor e VPN o TubeTube nunca se conecta direto: se o túnel cair, as requisições falham em vez de sair sem proteção. No modo Direto não há túnel: continua sem anúncios e sem conta Google, mas o YouTube vê o seu IP.</string>
+    <string name="tunnel_status_direct">Direto: sem túnel, o YouTube vê o seu IP</string>
     <string name="tunnel_blocked_toast">TubeTube: túnel de privacidade desconectado, veja Configurações → Túnel de privacidade</string>
     <string name="tunnel_webview_refused">Esta página não pode ser aberta com segurança agora (túnel desconectado, ou o WebView do aparelho não consegue usá-lo)</string>
     <string name="sponsorblock_title">Pular propagandas nos vídeos</string>
     <string name="sponsorblock_summary">Patrocínios, autopromoção e pedidos de \"se inscreva\" (SponsorBlock)</string>
     <string name="sponsorblock_enabled_title">Pular trechos promocionais</string>
-    <string name="sponsorblock_enabled_summary">Usa o SponsorBlock, uma base colaborativa de trechos. A consulta passa pelo túnel de privacidade e envia só parte de um hash do ID do vídeo</string>
+    <string name="sponsorblock_enabled_summary">Usa o SponsorBlock, uma base colaborativa de trechos. Envia só parte de um hash do ID do vídeo (pelo túnel de privacidade nos modos Tor e VPN)</string>
     <string name="sponsorblock_categories_title">O que pular</string>
     <string-array name="sponsorblock_categories_entries">
         <item>Patrocínio (\"este vídeo é patrocinado por…\")</item>

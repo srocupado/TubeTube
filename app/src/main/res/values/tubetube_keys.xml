@@ -5,6 +5,7 @@
     <string-array name="tunnel_mode_values" translatable="false">
         <item>tor</item>
         <item>vpn</item>
+        <item>direct</item>
     </string-array>
     <string name="tunnel_status_key" translatable="false">tunnel_status</string>
     <string name="tunnel_new_identity_key" translatable="false">tunnel_new_identity</string>

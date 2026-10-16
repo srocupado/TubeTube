@@ -150,7 +150,12 @@ class PrivacyTunnelSettingsFragment : BasePreferenceFragment(), OnSharedPreferen
         requirePreference<Preference>(R.string.tunnel_status_key).summary = when (status.state) {
             TunnelStatus.State.CONNECTING -> getString(R.string.tunnel_status_connecting)
 
-            TunnelStatus.State.CONNECTED -> getString(R.string.tunnel_status_connected)
+            TunnelStatus.State.CONNECTED ->
+                if (status.mode == TunnelMode.DIRECT) {
+                    getString(R.string.tunnel_status_direct)
+                } else {
+                    getString(R.string.tunnel_status_connected)
+                }
 
             TunnelStatus.State.ERROR -> getString(R.string.tunnel_status_error, status.detail)
 

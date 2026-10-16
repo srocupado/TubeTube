@@ -5,15 +5,18 @@ import androidx.preference.PreferenceManager
 import org.schabi.newpipe.R
 
 /**
- * How TubeTube reaches the network. There is intentionally no "direct" mode: every request
- * leaves the device through one of these tunnels, or it does not leave at all.
+ * How TubeTube reaches the network. In TOR and VPN modes every request leaves the device
+ * through the tunnel, or it does not leave at all. DIRECT is an explicit opt-out.
  */
 enum class TunnelMode(val prefValue: String) {
     /** Embedded Tor client. Maximum anonymity, slower. */
     TOR("tor"),
 
     /** Embedded WireGuard tunnel restricted to this app. Fast, trusts the VPN provider. */
-    VPN("vpn");
+    VPN("vpn"),
+
+    /** No tunnel: fastest, but YouTube/Google see the device's IP address. Opt-in only. */
+    DIRECT("direct");
 
     companion object {
         @JvmStatic

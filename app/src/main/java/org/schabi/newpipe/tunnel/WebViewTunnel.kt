@@ -31,7 +31,7 @@ object WebViewTunnel {
         }
         val supported = WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)
         when (status.mode) {
-            TunnelMode.VPN -> if (supported) {
+            TunnelMode.VPN, TunnelMode.DIRECT -> if (supported) {
                 // drop a Tor override left over from a previous mode
                 ProxyController.getInstance().clearProxyOverride(mainExecutor, onReady)
             } else {

@@ -81,6 +81,8 @@ object TunnelManager {
             TunnelMode.VPN ->
                 wireGuard =
                     WireGuardController(appContext, ::onStatus).also { it.start() }
+
+            TunnelMode.DIRECT -> onStatus(TunnelStatus(TunnelMode.DIRECT, TunnelStatus.State.CONNECTED))
         }
     }
 
@@ -122,23 +124,21 @@ object TunnelManager {
     }
 
     /** The route for the next connection. Called by [TunnelProxySelector] on any thread. */
-    fun currentProxy(): Proxy {
-        val status = currentStatus
+    fun currentProxy(): Proxy = routeFor(currentStatus, torHttpPort)
+
+    /** Pure routing decision, see [currentProxy]. */
+    internal fun routeFor(status: TunnelStatus, torPort: Int): Proxy {
         if (!status.isConnected) {
             return Blackhole.proxy
         }
         return when (status.mode) {
-            TunnelMode.TOR -> {
-                val port = torHttpPort
-                if (port > 0) {
-                    Loopback.httpProxy(port)
-                } else {
-                    Blackhole.proxy
-                }
-            }
+            TunnelMode.TOR -> if (torPort > 0) Loopback.httpProxy(torPort) else Blackhole.proxy
 
             // the OS routes this app's sockets into the WireGuard interface
             TunnelMode.VPN -> Proxy.NO_PROXY
+
+            // opt-in: straight to the destination
+            TunnelMode.DIRECT -> Proxy.NO_PROXY
         }
     }
 

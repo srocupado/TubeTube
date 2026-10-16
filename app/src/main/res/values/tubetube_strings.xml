@@ -30,4 +30,23 @@
     <string name="tunnel_info">TubeTube never connects directly: if the tunnel drops, requests fail instead of leaving without protection.</string>
     <string name="tunnel_blocked_toast">TubeTube: privacy tunnel not connected, check Settings → Privacy tunnel</string>
     <string name="tunnel_webview_refused">This page cannot be opened safely right now (privacy tunnel not connected, or this device\'s WebView cannot use it)</string>
+    <string name="sponsorblock_title">Skip ads in videos</string>
+    <string name="sponsorblock_summary">Sponsors, self-promotion and \"subscribe!\" reminders (SponsorBlock)</string>
+    <string name="sponsorblock_enabled_title">Skip promotional segments</string>
+    <string name="sponsorblock_enabled_summary">Uses SponsorBlock, a community database of segments. Queried through the privacy tunnel, sending only part of a hash of the video ID</string>
+    <string name="sponsorblock_categories_title">What to skip</string>
+    <string-array name="sponsorblock_categories_entries">
+        <item>Sponsor (\"this video is sponsored by…\")</item>
+        <item>Self-promotion (own products, courses, merch)</item>
+        <item>Interaction reminders (subscribe, like, bell)</item>
+        <item>Intro</item>
+        <item>Outro / end cards</item>
+        <item>Preview / recap</item>
+        <item>Filler / tangents</item>
+        <item>Non-music part of music videos</item>
+    </string-array>
+    <string name="sponsorblock_notify_title">Show a message when skipping</string>
+    <string name="sponsorblock_skipped_toast">Ad skipped</string>
+    <string name="sponsorblock_full_video_toast">This whole video is marked as an ad or sponsored content</string>
+    <string name="sponsorblock_info">Segments are marked by the community: very new videos may not be marked yet. Products shown on screen cannot be removed.</string>
 </resources>

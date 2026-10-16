@@ -43,6 +43,7 @@ public final class SettingsResourceRegistry {
         add(ExoPlayerSettingsFragment.class, R.xml.exoplayer_settings);
         add(BackupRestoreSettingsFragment.class, R.xml.backup_restore_settings);
         add(PrivacyTunnelSettingsFragment.class, R.xml.privacy_tunnel_settings);
+        add(SponsorBlockSettingsFragment.class, R.xml.sponsorblock_settings);
     }
 
     private SettingRegistryEntry add(

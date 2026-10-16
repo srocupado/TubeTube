@@ -11,4 +11,23 @@
     <string name="tunnel_wireguard_import_key" translatable="false">tunnel_wireguard_import</string>
     <string name="tunnel_wireguard_delete_key" translatable="false">tunnel_wireguard_delete</string>
     <string name="tunnel_vpn_permission_key" translatable="false">tunnel_vpn_permission</string>
+    <string name="sponsorblock_enabled_key" translatable="false">sponsorblock_enabled</string>
+    <string name="sponsorblock_notify_key" translatable="false">sponsorblock_notify</string>
+    <string name="sponsorblock_categories_key" translatable="false">sponsorblock_categories</string>
+    <string-array name="sponsorblock_categories_values" translatable="false">
+        <item>sponsor</item>
+        <item>selfpromo</item>
+        <item>interaction</item>
+        <item>intro</item>
+        <item>outro</item>
+        <item>preview</item>
+        <item>filler</item>
+        <item>music_offtopic</item>
+    </string-array>
+    <!-- everything promotional is skipped out of the box -->
+    <string-array name="sponsorblock_categories_default" translatable="false">
+        <item>sponsor</item>
+        <item>selfpromo</item>
+        <item>interaction</item>
+    </string-array>
 </resources>

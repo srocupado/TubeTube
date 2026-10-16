@@ -5,6 +5,8 @@ Cliente de YouTube para Android focado em privacidade. É um fork do
 **túnel de privacidade embutido**:
 
 - **Sem anúncios e sem conta Google**, como o NewPipe.
+- **Sem propaganda dentro dos vídeos:** patrocínios ("este vídeo é patrocinado por..."), autopromoção e
+  pedidos de "se inscreva" são pulados automaticamente pelo [SponsorBlock](https://sponsor.ajay.app).
 - **O Google não vê o seu IP.** Todo o tráfego do app sai por um túnel embutido:
   - **Tor**: anonimato máximo, sem depender de ninguém, mais lento;
   - **VPN WireGuard** (Mullvad, IVPN, Proton...): rápido, mas você confia no provedor.
@@ -45,6 +47,14 @@ que já esteja no arquivo.
 - **Tor:** o app usa a porta HTTP CONNECT do Tor. Os nomes de domínio são resolvidos pelo Tor, nunca pelo DNS do celular.
 - **VPN:** os sockets do app são **amarrados à rede da VPN**. Se a VPN cair, eles falham em vez de escorregar para o Wi-Fi ou os dados móveis, mesmo nos milissegundos antes de o app perceber a queda.
 - **Sem túnel:** toda conexão vai para um "buraco negro" local, que recusa na hora.
+
+### Propaganda dentro dos vídeos (SponsorBlock)
+- Por padrão o app pula **patrocínios, autopromoção e pedidos de interação**. Em
+  **Configurações → Pular propagandas nos vídeos** dá para incluir abertura, encerramento, enrolação etc.
+- A posição do vídeo é conferida a cada 0,2 s, então nem o começo da propaganda aparece.
+- Se o vídeo **inteiro** estiver marcado como propaganda, o app avisa ao abrir.
+- **Privacidade:** a consulta passa pelo túnel e envia só os 4 primeiros caracteres do SHA-256 do ID
+  do vídeo. O servidor devolve os trechos de todos os vídeos com esse prefixo, sem saber qual você abriu.
 
 ### Ajustes de velocidade no Tor
 - **Conflux:** junta dois caminhos que terminam na mesma saída. Mais banda, mesmo IP.
@@ -93,8 +103,9 @@ poucas linhas de `DownloaderImpl`, `App`, `MainActivity`, `ReCaptchaActivity`,
 
 ## Limitações conhecidas
 
-- **Sem SponsorBlock:** o NewPipe oficial não tem essa função. Os patrocínios falados dentro dos
-  vídeos não são pulados automaticamente.
+- **O SponsorBlock é colaborativo:** só pula trechos que alguém já marcou. Vídeos populares são
+  marcados rápido, mas um vídeo muito recente de um canal pequeno pode ainda não ter marcação.
+  Produtos que aparecem na imagem não têm como ser removidos.
 - No modo Tor, o YouTube às vezes bloqueia uma saída ("confirme que não é um robô"). Use **Nova identidade Tor**.
 - Requisições `http://` sem TLS não passam pela porta do Tor e falham. É falha fechada, não vazamento.
 - Links abertos no navegador externo ("abrir no navegador", "compartilhar") saem do TubeTube e não passam pelo túnel.

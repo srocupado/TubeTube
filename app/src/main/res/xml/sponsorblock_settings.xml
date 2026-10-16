@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/sponsorblock_title">
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/sponsorblock_enabled_key"
+        android:summary="@string/sponsorblock_enabled_summary"
+        android:title="@string/sponsorblock_enabled_title"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
+
+    <MultiSelectListPreference
+        android:defaultValue="@array/sponsorblock_categories_default"
+        android:dependency="@string/sponsorblock_enabled_key"
+        android:entries="@array/sponsorblock_categories_entries"
+        android:entryValues="@array/sponsorblock_categories_values"
+        android:key="@string/sponsorblock_categories_key"
+        android:title="@string/sponsorblock_categories_title"
+        app:iconSpaceReserved="false" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:dependency="@string/sponsorblock_enabled_key"
+        android:key="@string/sponsorblock_notify_key"
+        android:title="@string/sponsorblock_notify_title"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
+
+    <Preference
+        android:selectable="false"
+        android:summary="@string/sponsorblock_info"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
+</PreferenceScreen>

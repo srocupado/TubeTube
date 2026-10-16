@@ -119,6 +119,7 @@ import org.schabi.newpipe.player.ui.PlayerUi;
 import org.schabi.newpipe.player.ui.PlayerUiList;
 import org.schabi.newpipe.player.ui.PopupPlayerUi;
 import org.schabi.newpipe.player.ui.VideoPlayerUi;
+import org.schabi.newpipe.sponsorblock.SponsorBlockSkipper;
 import org.schabi.newpipe.util.DependentPreferenceHelper;
 import org.schabi.newpipe.util.ExtractorHelper;
 import org.schabi.newpipe.util.ListHelper;
@@ -255,6 +256,9 @@ public final class Player implements PlaybackListener, Listener {
     private final CompositeDisposable databaseUpdateDisposable = new CompositeDisposable();
     @NonNull
     private final CompositeDisposable streamItemDisposable = new CompositeDisposable();
+    // TubeTube: skips sponsors, self-promotion and "subscribe!" reminders (SponsorBlock)
+    @NonNull
+    private final SponsorBlockSkipper sponsorBlockSkipper;
 
     /*//////////////////////////////////////////////////////////////////////////
     // Utils
@@ -287,6 +291,17 @@ public final class Player implements PlaybackListener, Listener {
         this.service = service;
         context = service;
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        sponsorBlockSkipper = new SponsorBlockSkipper(context, new SponsorBlockSkipper.Playback() {
+            @Override
+            public long currentPositionMillis() {
+                return exoPlayerIsNull() ? -1 : simpleExoPlayer.getCurrentPosition();
+            }
+
+            @Override
+            public void seekTo(final long positionMillis) {
+                Player.this.seekTo(positionMillis);
+            }
+        });
         recordManager = new HistoryRecordManager(context);
 
         setupBroadcastReceiver();
@@ -697,6 +712,7 @@ public final class Player implements PlaybackListener, Listener {
         databaseUpdateDisposable.clear();
         progressUpdateDisposable.set(null);
         streamItemDisposable.clear();
+        sponsorBlockSkipper.release();
 
         UIs.destroyAll(Object.class); // destroy every UI: obviously every UI extends Object
     }
@@ -1913,6 +1929,7 @@ public final class Player implements PlaybackListener, Listener {
         }
 
         maybeAutoQueueNextStream(info);
+        sponsorBlockSkipper.onStream(info);
 
         loadCurrentThumbnail(info.getThumbnails());
         registerStreamViewed();

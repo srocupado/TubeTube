@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tunnel_mode_key" translatable="false">tunnel_mode</string>
+    <string name="tunnel_mode_default" translatable="false">tor</string>
+    <string-array name="tunnel_mode_values" translatable="false">
+        <item>tor</item>
+        <item>vpn</item>
+    </string-array>
+    <string name="tunnel_status_key" translatable="false">tunnel_status</string>
+    <string name="tunnel_new_identity_key" translatable="false">tunnel_new_identity</string>
+    <string name="tunnel_wireguard_import_key" translatable="false">tunnel_wireguard_import</string>
+    <string name="tunnel_wireguard_delete_key" translatable="false">tunnel_wireguard_delete</string>
+    <string name="tunnel_vpn_permission_key" translatable="false">tunnel_vpn_permission</string>
+</resources>

@@ -11,6 +11,10 @@ import org.schabi.newpipe.extractor.downloader.Downloader;
 import org.schabi.newpipe.extractor.downloader.Request;
 import org.schabi.newpipe.extractor.downloader.Response;
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException;
+import org.schabi.newpipe.tunnel.TunnelDns;
+import org.schabi.newpipe.tunnel.TunnelGateInterceptor;
+import org.schabi.newpipe.tunnel.TunnelProxySelector;
+import org.schabi.newpipe.tunnel.TunnelSocketFactory;
 import org.schabi.newpipe.util.InfoCache;
 
 import java.io.IOException;
@@ -41,6 +45,11 @@ public final class DownloaderImpl extends Downloader {
 
     private DownloaderImpl(final OkHttpClient.Builder builder) {
         this.client = builder
+                // every request goes through the privacy tunnel, or fails (see tunnel package)
+                .proxySelector(TunnelProxySelector.INSTANCE)
+                .socketFactory(TunnelSocketFactory.INSTANCE)
+                .dns(TunnelDns.INSTANCE)
+                .addInterceptor(TunnelGateInterceptor.INSTANCE)
                 .readTimeout(30, TimeUnit.SECONDS)
 //                .cache(new Cache(new File(context.getExternalCacheDir(), "okhttp"),
 //                        16 * 1024 * 1024))

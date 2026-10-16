@@ -47,6 +47,7 @@ import com.google.common.collect.Sets;
 import com.google.common.net.HttpHeaders;
 
 import org.schabi.newpipe.DownloaderImpl;
+import org.schabi.newpipe.tunnel.TunnelManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -711,7 +712,8 @@ public final class YoutubeHttpDataSource extends BaseDataSource implements HttpD
      * @return an {@link HttpURLConnection} created with the {@code url}
      */
     private HttpURLConnection openConnection(@NonNull final URL url) throws IOException {
-        return (HttpURLConnection) url.openConnection();
+        // bound to the VPN network in VPN mode, routed by TunnelProxySelector otherwise
+        return (HttpURLConnection) TunnelManager.openConnection(url);
     }
 
     /**

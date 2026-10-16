@@ -33,6 +33,7 @@ import org.schabi.newpipe.extractor.downloader.Downloader
 import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor
 import org.schabi.newpipe.ktx.hasAssignableCause
 import org.schabi.newpipe.settings.NewPipeSettings
+import org.schabi.newpipe.tunnel.TunnelManager
 import org.schabi.newpipe.util.BridgeStateSaverInitializer
 import org.schabi.newpipe.util.Localization
 import org.schabi.newpipe.util.ServiceHelper
@@ -95,6 +96,10 @@ open class App :
 
         // Initialize settings first because other initializations can use its values
         NewPipeSettings.initSettings(this)
+
+        // Before any network access: route everything through the privacy tunnel (fail closed)
+        // (the crash-report process only gets the fail-closed proxy selector, not a second tunnel)
+        TunnelManager.init(this, startTunnel = !isACRASenderServiceProcess())
 
         NewPipe.init(
             getDownloader(),

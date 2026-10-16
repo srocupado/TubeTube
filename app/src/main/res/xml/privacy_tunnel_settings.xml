@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/tunnel_settings_title">
+
+    <Preference
+        android:key="@string/tunnel_status_key"
+        android:selectable="false"
+        android:title="@string/tunnel_status_title"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
+
+    <ListPreference
+        android:defaultValue="@string/tunnel_mode_default"
+        android:entries="@array/tunnel_mode_entries"
+        android:entryValues="@array/tunnel_mode_values"
+        android:key="@string/tunnel_mode_key"
+        android:title="@string/tunnel_mode_title"
+        app:iconSpaceReserved="false"
+        app:useSimpleSummaryProvider="true" />
+
+    <Preference
+        android:key="@string/tunnel_new_identity_key"
+        android:summary="@string/tunnel_new_identity_summary"
+        android:title="@string/tunnel_new_identity_title"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
+
+    <PreferenceCategory
+        android:title="@string/tunnel_wireguard_category"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="@string/tunnel_wireguard_import_key"
+            android:summary="@string/tunnel_wireguard_import_summary"
+            android:title="@string/tunnel_wireguard_import_title"
+            app:iconSpaceReserved="false"
+            app:singleLineTitle="false" />
+
+        <Preference
+            android:key="@string/tunnel_vpn_permission_key"
+            android:summary="@string/tunnel_vpn_permission_summary"
+            android:title="@string/tunnel_vpn_permission_title"
+            app:iconSpaceReserved="false"
+            app:singleLineTitle="false" />
+
+        <Preference
+            android:key="@string/tunnel_wireguard_delete_key"
+            android:title="@string/tunnel_wireguard_delete_title"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <Preference
+        android:selectable="false"
+        android:summary="@string/tunnel_info"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
+</PreferenceScreen>

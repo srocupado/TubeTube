@@ -57,3 +57,10 @@
 
 # See https://github.com/TeamNewPipe/NewPipe/issues/13508
 -keep class org.ocpsoft.prettytime.i18n.Resources* { *; }
+
+## TubeTube privacy tunnel: native code (tor, wireguard-go) binds to these classes by name
+-keep class org.torproject.jni.** { *; }
+-keep class net.freehaven.tor.control.** { *; }
+-keep class com.wireguard.android.backend.** { *; }
+-keep class com.wireguard.config.** { *; }
+-keep class com.wireguard.crypto.** { *; }

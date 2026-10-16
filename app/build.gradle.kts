@@ -33,16 +33,19 @@ kotlin {
 configure<ApplicationExtension> {
     compileSdk {
         version = release(NEWPIPE_VERSION_SDK_COMPILE_MAJOR) {
-            minorApiLevel = NEWPIPE_VERSION_SDK_COMPILE_MINOR
+            // TubeTube: tor-android 0.4.9.12+ needs compileSdk 37.1 (compile-time APIs only,
+            // runtime behavior is set by targetSdk, which is unchanged)
+            minorApiLevel = 1
         }
     }
     namespace = NEWPIPE_APPLICATION_ID_OLD
 
     defaultConfig {
-        applicationId = NEWPIPE_APPLICATION_ID_OLD
-        resValue("string", "app_name", "NewPipe")
+        applicationId = "io.github.srocupado.tubetube"
+        resValue("string", "app_name", "TubeTube")
+        // tor-android and the WireGuard tunnel need Android 7.0+ (NewPipe itself: 6.0+)
         minSdk {
-            version = release(NEWPIPE_VERSION_SDK_MIN)
+            version = release(24)
         }
         targetSdk {
             version = release(NEWPIPE_VERSION_SDK_TARGET)
@@ -63,17 +66,17 @@ configure<ApplicationExtension> {
             // suffix the app id and the app name with git branch name
             if (normalizedWorkingBranch.isEmpty() || workingBranch in defaultBranches) {
                 applicationIdSuffix = ".debug"
-                resValue("string", "app_name", "NewPipe Debug")
+                resValue("string", "app_name", "TubeTube Debug")
             } else {
                 applicationIdSuffix = ".debug.$normalizedWorkingBranch"
-                resValue("string", "app_name", "NewPipe $workingBranch")
+                resValue("string", "app_name", "TubeTube $workingBranch")
             }
         }
 
         release {
             System.getProperty("packageSuffix")?.let { suffix ->
                 applicationIdSuffix = suffix
-                resValue("string", "app_name", "NewPipe $suffix")
+                resValue("string", "app_name", "TubeTube $suffix")
             }
             isMinifyEnabled = true
             isShrinkResources = true
@@ -91,10 +94,10 @@ configure<ApplicationExtension> {
             // suffix the app id and the app name with git branch name
             if (normalizedWorkingBranch.isEmpty() || workingBranch in defaultBranches) {
                 applicationIdSuffix = ".continuous"
-                resValue("string", "app_name", "NewPipe Continuous")
+                resValue("string", "app_name", "TubeTube Continuous")
             } else {
                 applicationIdSuffix = ".continuous.$normalizedWorkingBranch"
-                resValue("string", "app_name", "NewPipe $workingBranch")
+                resValue("string", "app_name", "TubeTube $workingBranch")
             }
         }
     }
@@ -268,6 +271,10 @@ dependencies {
 
     // HTTP client
     implementation(libs.squareup.okhttp)
+
+    // TubeTube privacy tunnel: embedded Tor client and WireGuard
+    implementation(libs.guardianproject.tor.android)
+    implementation(libs.wireguard.tunnel)
 
     // Media player
     implementation(libs.google.exoplayer.core)

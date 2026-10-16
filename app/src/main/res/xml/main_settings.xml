@@ -5,6 +5,13 @@
     android:title="@string/settings">
 
     <PreferenceScreen
+        android:fragment="org.schabi.newpipe.settings.PrivacyTunnelSettingsFragment"
+        android:icon="@drawable/ic_privacy_tunnel"
+        android:summary="@string/tunnel_settings_summary"
+        android:title="@string/tunnel_settings_title"
+        app:iconSpaceReserved="false" />
+
+    <PreferenceScreen
         android:fragment="org.schabi.newpipe.settings.VideoAudioSettingsFragment"
         android:icon="@drawable/ic_headset"
         android:title="@string/settings_category_video_audio_title"

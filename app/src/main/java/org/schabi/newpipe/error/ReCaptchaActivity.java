@@ -12,6 +12,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,6 +26,7 @@ import org.schabi.newpipe.MainActivity;
 import org.schabi.newpipe.R;
 import org.schabi.newpipe.databinding.ActivityRecaptchaBinding;
 import org.schabi.newpipe.extractor.utils.Utils;
+import org.schabi.newpipe.tunnel.WebViewTunnel;
 import org.schabi.newpipe.util.ThemeHelper;
 
 /*
@@ -108,7 +110,14 @@ public class ReCaptchaActivity extends AppCompatActivity {
         recaptchaBinding.reCaptchaWebView.clearHistory();
         CookieManager.getInstance().removeAllCookies(null);
 
-        recaptchaBinding.reCaptchaWebView.loadUrl(url);
+        // the WebView has its own network stack: only load once it goes through the tunnel
+        WebViewTunnel.protect(
+                () -> recaptchaBinding.reCaptchaWebView.loadUrl(url),
+                () -> {
+                    Toast.makeText(this, R.string.tunnel_webview_refused, Toast.LENGTH_LONG)
+                            .show();
+                    finish();
+                });
     }
 
     @Override

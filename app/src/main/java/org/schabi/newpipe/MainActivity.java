@@ -43,6 +43,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -83,6 +84,8 @@ import org.schabi.newpipe.player.helper.PlayerHolder;
 import org.schabi.newpipe.player.playqueue.PlayQueue;
 import org.schabi.newpipe.settings.UpdateSettingsFragment;
 import org.schabi.newpipe.settings.migration.MigrationManager;
+import org.schabi.newpipe.tunnel.TunnelManager;
+import org.schabi.newpipe.tunnel.TunnelStatus;
 import org.schabi.newpipe.util.Constants;
 import org.schabi.newpipe.util.DeviceUtils;
 import org.schabi.newpipe.util.KioskTranslator;
@@ -208,6 +211,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         MigrationManager.showUserInfoIfPresent(this);
+
+        // traffic is blocked until the privacy tunnel is set up: say so instead of failing silently
+        if (TunnelManager.getCurrentStatus().getState() == TunnelStatus.State.NEEDS_SETUP) {
+            Toast.makeText(this, R.string.tunnel_blocked_toast, Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tunnel_settings_title">Privacy tunnel</string>
+    <string name="tunnel_settings_summary">Hide your IP address: Tor or WireGuard VPN</string>
+    <string name="tunnel_mode_title">Tunnel</string>
+    <string-array name="tunnel_mode_entries">
+        <item>Tor (maximum anonymity, slower)</item>
+        <item>WireGuard VPN (fast)</item>
+    </string-array>
+    <string name="tunnel_status_title">Status</string>
+    <string name="tunnel_status_connecting">Connecting… nothing leaves the device until the tunnel is up</string>
+    <string name="tunnel_status_connected">Connected: all traffic goes through the tunnel</string>
+    <string name="tunnel_status_error">Disconnected, all traffic blocked: %s</string>
+    <string name="tunnel_status_needs_config">Import a WireGuard configuration below. All traffic blocked meanwhile</string>
+    <string name="tunnel_status_needs_permission">Allow the VPN below. All traffic blocked meanwhile</string>
+    <string name="tunnel_new_identity_title">New Tor identity</string>
+    <string name="tunnel_new_identity_summary">Use new circuits (and a new exit IP) from now on</string>
+    <string name="tunnel_new_identity_done">New circuits requested</string>
+    <string name="tunnel_wireguard_category">WireGuard VPN</string>
+    <string name="tunnel_wireguard_import_title">Import configuration (.conf)</string>
+    <string name="tunnel_wireguard_import_summary">From your VPN provider (e.g. Mullvad). Only TubeTube is routed through it</string>
+    <string name="tunnel_wireguard_import_summary_present">A configuration is installed. Tap to replace it</string>
+    <string name="tunnel_wireguard_import_done">WireGuard configuration imported</string>
+    <string name="tunnel_wireguard_import_failed">Invalid WireGuard configuration: %s</string>
+    <string name="tunnel_wireguard_delete_title">Delete configuration</string>
+    <string name="tunnel_wireguard_delete_done">WireGuard configuration deleted</string>
+    <string name="tunnel_vpn_permission_title">Allow VPN</string>
+    <string name="tunnel_vpn_permission_summary">Android asks once for permission to create the app-only tunnel</string>
+    <string name="tunnel_vpn_permission_denied">Without this permission the WireGuard tunnel cannot start</string>
+    <string name="tunnel_info">TubeTube never connects directly: if the tunnel drops, requests fail instead of leaving without protection.</string>
+    <string name="tunnel_blocked_toast">TubeTube: privacy tunnel not connected, check Settings → Privacy tunnel</string>
+    <string name="tunnel_webview_refused">This page cannot be opened safely right now (privacy tunnel not connected, or this device\'s WebView cannot use it)</string>
+</resources>

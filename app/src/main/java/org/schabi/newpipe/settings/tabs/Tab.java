@@ -28,6 +28,7 @@ import org.schabi.newpipe.local.feed.FeedFragment;
 import org.schabi.newpipe.local.history.StatisticsPlaylistFragment;
 import org.schabi.newpipe.local.playlist.LocalPlaylistFragment;
 import org.schabi.newpipe.local.subscription.SubscriptionFragment;
+import org.schabi.newpipe.local.suggestions.SuggestionsFragment;
 import org.schabi.newpipe.util.KioskTranslator;
 import org.schabi.newpipe.util.ServiceHelper;
 
@@ -165,7 +166,8 @@ public abstract class Tab {
         KIOSK(new KioskTab()),
         CHANNEL(new ChannelTab()),
         PLAYLIST(new PlaylistTab()),
-        FEEDGROUP(new FeedGroupTab());
+        FEEDGROUP(new FeedGroupTab()),
+        SUGGESTIONS(new SuggestionsTab());
 
         private final Tab tab;
 
@@ -282,6 +284,33 @@ public abstract class Tab {
         @Override
         public BookmarkFragment getFragment(final Context context) {
             return new BookmarkFragment();
+        }
+    }
+
+    /** TubeTube: videos similar to the ones watched, computed on the device. */
+    public static class SuggestionsTab extends Tab {
+        // high id, so it never clashes with ids upstream NewPipe may add
+        public static final int ID = 1001;
+
+        @Override
+        public int getTabId() {
+            return ID;
+        }
+
+        @Override
+        public String getTabName(final Context context) {
+            return context.getString(R.string.suggestions_tab_title);
+        }
+
+        @DrawableRes
+        @Override
+        public int getTabIconRes(final Context context) {
+            return R.drawable.ic_explore;
+        }
+
+        @Override
+        public SuggestionsFragment getFragment(final Context context) {
+            return new SuggestionsFragment();
         }
     }
 

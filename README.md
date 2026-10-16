@@ -58,6 +58,14 @@ que já esteja no arquivo.
 - **Privacidade:** a consulta passa pelo túnel e envia só os 4 primeiros caracteres do SHA-256 do ID
   do vídeo. O servidor devolve os trechos de todos os vídeos com esse prefixo, sem saber qual você abriu.
 
+### Aba Sugestões (calculada no aparelho)
+- Adicione em **Configurações → Conteúdo → Conteúdo da tela inicial → + → Sugestões**.
+- Parte dos últimos 10 vídeos do seu histórico (e, se o histórico for curto, de vídeos novos dos
+  canais que você segue) e junta os "vídeos semelhantes" de cada um. Vídeos que aparecem para vários
+  deles sobem, canais inscritos ganham um bônus, já assistidos e lives ficam de fora, no máximo 3 por canal.
+- **Privacidade:** o histórico nunca sai do aparelho. As únicas requisições são as páginas dos
+  vídeos, as mesmas que o app já abre, pelo túnel. Puxe para baixo para atualizar.
+
 ### Ajustes de velocidade no Tor
 - **Conflux:** junta dois caminhos que terminam na mesma saída. Mais banda, mesmo IP.
 - **Circuitos mantidos por 30 minutos:** os links de vídeo do YouTube ficam presos ao IP que os pediu, e trocar a saída no meio do vídeo quebraria a reprodução.

@@ -51,4 +51,6 @@
     <string name="sponsorblock_skipped_toast">Ad skipped</string>
     <string name="sponsorblock_full_video_toast">This whole video is marked as an ad or sponsored content</string>
     <string name="sponsorblock_info">Segments are marked by the community: very new videos may not be marked yet. Products shown on screen cannot be removed.</string>
+    <string name="suggestions_tab_title">Suggestions</string>
+    <string name="suggestions_empty">Watch a few videos or import your subscriptions to get suggestions</string>
 </resources>

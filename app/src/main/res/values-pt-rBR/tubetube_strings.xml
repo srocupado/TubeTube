@@ -51,4 +51,6 @@
     <string name="sponsorblock_skipped_toast">Propaganda pulada</string>
     <string name="sponsorblock_full_video_toast">Este vídeo inteiro está marcado como propaganda ou conteúdo patrocinado</string>
     <string name="sponsorblock_info">Os trechos são marcados pela comunidade: vídeos muito recentes podem ainda não ter marcação. Produtos que aparecem na imagem não têm como ser removidos.</string>
+    <string name="suggestions_tab_title">Sugestões</string>
+    <string name="suggestions_empty">Assista alguns vídeos ou importe suas inscrições para receber sugestões</string>
 </resources>

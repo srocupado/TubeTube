@@ -122,6 +122,7 @@ import org.schabi.newpipe.player.ui.VideoPlayerUi;
 import org.schabi.newpipe.sponsorblock.SponsorBlockSkipper;
 import org.schabi.newpipe.util.DependentPreferenceHelper;
 import org.schabi.newpipe.util.ExtractorHelper;
+import org.schabi.newpipe.util.InfoCache;
 import org.schabi.newpipe.util.ListHelper;
 import org.schabi.newpipe.util.NavigationHelper;
 import org.schabi.newpipe.util.SerializedCache;
@@ -198,6 +199,7 @@ public final class Player implements PlaybackListener, Listener {
     private PlayQueueItem currentItem;
     @Nullable
     private MediaItemTag currentMetadata;
+    private final StaleStreamRecovery staleStreamRecovery = new StaleStreamRecovery();
     @Nullable
     private Bitmap currentThumbnail;
     @Nullable
@@ -1553,6 +1555,22 @@ public final class Player implements PlaybackListener, Listener {
         Log.e(TAG, "ExoPlayer - onPlayerError() called with:", error);
 
         saveStreamProgressState();
+
+        if (currentMetadata != null
+                && staleStreamRecovery.shouldRefresh(error, currentMetadata.getStreamUrl())) {
+            // TubeTube: the stream URLs are bound to the IP that loaded them (Tor circuit
+            // rotated, network changed): load the video again and resume at the same position
+            InfoCache.getInstance().removeInfo(currentMetadata.getServiceId(),
+                    currentMetadata.getStreamUrl(), InfoCache.Type.STREAM);
+            setRecovery();
+            reloadPlayQueueManager();
+            onBuffering();
+            if (fragmentListener != null) {
+                fragmentListener.onPlayerError(error, true);
+            }
+            return;
+        }
+
         boolean isCatchableException = false;
 
         switch (error.errorCode) {

@@ -2,6 +2,7 @@ package org.schabi.newpipe.local.suggestions
 
 import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.ListInfo
+import org.schabi.newpipe.extractor.Page
 import org.schabi.newpipe.extractor.ServiceList
 import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
@@ -15,10 +16,15 @@ class SuggestionsInfo(items: List<StreamInfoItem>) :
     ) {
     init {
         relatedItems = ArrayList<InfoItem>(items)
+        // more suggestions can always be computed from the ones shown
+        nextPage = if (items.isEmpty()) null else NEXT_PAGE
     }
 
     companion object {
         const val ID = "tubetube_suggestions"
         const val URL = "tubetube://suggestions"
+
+        /** Marker page: the actual "load more" state is in [SuggestionsLoader]. */
+        val NEXT_PAGE = Page(URL, "more")
     }
 }

@@ -74,6 +74,8 @@ que já esteja no arquivo.
   vídeos, as mesmas que o app já abre, pelo túnel. Puxe para baixo para atualizar.
 - As sugestões ficam guardadas no aparelho: a aba abre na hora com a última lista (sem os vídeos que
   você assistiu depois). Puxar para baixo calcula de novo.
+- **Rolagem infinita:** ao chegar no fim da lista o app busca mais, a partir de vídeos mais antigos do
+  histórico, de vídeos novos dos canais inscritos e das próprias sugestões já mostradas.
 
 ### Atualização em segundo plano
 - **Configurações → Conteúdo → Feed → Atualizar em segundo plano** (padrão: a cada 3 horas;

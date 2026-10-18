@@ -59,4 +59,16 @@
     <string name="takeout_playlists_import_done">Playlists imported: %1$d (%2$d videos). Unavailable videos skipped: %3$d. Already present: %4$d</string>
     <string name="takeout_playlists_import_none">No playlist found in this file</string>
     <string name="takeout_playlists_import_failed">Playlist import failed: %s</string>
+    <string name="background_refresh_interval_title">Update in the background</string>
+    <string name="background_refresh_interval_summary">Checks your channels for new videos and prepares suggestions, through the tunnel: %s</string>
+    <string-array name="background_refresh_interval_entries">
+        <item>Off</item>
+        <item>Every hour</item>
+        <item>Every 3 hours</item>
+        <item>Every 6 hours</item>
+        <item>Every 12 hours</item>
+        <item>Once a day</item>
+    </string-array>
+    <string name="background_refresh_wifi_only_title">Only on Wi-Fi</string>
+    <string name="background_refresh_wifi_only_summary">Do not use mobile data for the background update</string>
 </resources>

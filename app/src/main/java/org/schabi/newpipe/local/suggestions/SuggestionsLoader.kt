@@ -19,15 +19,49 @@ import org.schabi.newpipe.util.ExtractorHelper
  * loads anyway, through the privacy tunnel.
  */
 object SuggestionsLoader {
-    private const val MAX_SEEDS = 10
+    private const val MAX_SEEDS = 8
     private const val MAX_FEED_SEEDS = 4
-    private const val CONCURRENT_REQUESTS = 3
+    private const val CONCURRENT_REQUESTS = 4
+
+    /** Cached suggestions older than this are recomputed when the tab opens. */
+    private const val MAX_CACHE_AGE_MILLIS = 12 * 60 * 60 * 1000L
 
     private data class Seed(val serviceId: Int, val url: String)
 
     private data class SeedResult(val related: List<StreamInfoItem>, val error: Throwable?)
 
-    fun load(context: Context, forceLoad: Boolean): Single<SuggestionsInfo> = Single.fromCallable {
+    /**
+     * Shows the cached suggestions (minus videos watched since) when fresh enough, otherwise
+     * computes new ones. [forceLoad] (pull to refresh) always computes.
+     */
+    fun load(context: Context, forceLoad: Boolean): Single<SuggestionsInfo> = Single.defer {
+        if (!forceLoad) {
+            val cached = SuggestionsCache.read(context)
+            if (cached != null &&
+                System.currentTimeMillis() - cached.savedAtMillis < MAX_CACHE_AGE_MILLIS
+            ) {
+                val watched = watchedUrls(context)
+                val fresh = cached.items.filter { it.url !in watched }
+                if (fresh.isNotEmpty()) {
+                    return@defer Single.just(SuggestionsInfo(fresh))
+                }
+            }
+        }
+        refresh(context, forceLoad)
+    }
+
+    /** Computes new suggestions and caches them; also used by the background refresh. */
+    fun refresh(context: Context, forceLoad: Boolean): Single<SuggestionsInfo> = compute(context, forceLoad).doOnSuccess { info ->
+        if (info.relatedItems.isNotEmpty()) {
+            SuggestionsCache.write(context, info.relatedItems.filterIsInstance<StreamInfoItem>())
+        }
+    }
+
+    private fun watchedUrls(context: Context): Set<String> = NewPipeDatabase.getInstance(context).streamHistoryDAO().history.blockingFirst()
+        .map { it.streamEntity.url }
+        .toHashSet()
+
+    private fun compute(context: Context, forceLoad: Boolean): Single<SuggestionsInfo> = Single.fromCallable {
         val db = NewPipeDatabase.getInstance(context)
         val youtube = ServiceList.YouTube.serviceId
 

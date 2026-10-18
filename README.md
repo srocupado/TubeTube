@@ -72,6 +72,14 @@ que já esteja no arquivo.
   deles sobem, canais inscritos ganham um bônus, já assistidos e lives ficam de fora, no máximo 3 por canal.
 - **Privacidade:** o histórico nunca sai do aparelho. As únicas requisições são as páginas dos
   vídeos, as mesmas que o app já abre, pelo túnel. Puxe para baixo para atualizar.
+- As sugestões ficam guardadas no aparelho: a aba abre na hora com a última lista (sem os vídeos que
+  você assistiu depois). Puxar para baixo calcula de novo.
+
+### Atualização em segundo plano
+- **Configurações → Conteúdo → Feed → Atualizar em segundo plano** (padrão: a cada 3 horas;
+  dá para desligar ou escolher 1, 6, 12 ou 24 horas, e "Só no Wi-Fi").
+- Periodicamente o app busca vídeos novos de todos os canais inscritos e prepara as sugestões,
+  pelo túnel (ele espera o Tor ou a VPN conectar). Não roda com a bateria fraca.
 
 ### Ajustes de velocidade no Tor
 - **Conflux:** junta dois caminhos que terminam na mesma saída. Mais banda, mesmo IP.

@@ -77,6 +77,7 @@ import org.schabi.newpipe.fragments.MainFragment;
 import org.schabi.newpipe.fragments.detail.VideoDetailFragment;
 import org.schabi.newpipe.fragments.list.comments.CommentRepliesFragment;
 import org.schabi.newpipe.fragments.list.search.SearchFragment;
+import org.schabi.newpipe.local.background.BackgroundRefreshWorker;
 import org.schabi.newpipe.local.feed.notifications.NotificationWorker;
 import org.schabi.newpipe.player.Player;
 import org.schabi.newpipe.player.event.OnKeyDownListener;
@@ -191,6 +192,9 @@ public class MainActivity extends AppCompatActivity {
             FocusOverlayView.setupFocusObserver(this);
         }
         openMiniPlayerUponPlayerStarted();
+
+        // TubeTube: periodic feed + suggestions update, as set in Content settings
+        BackgroundRefreshWorker.schedule(this);
 
         if (PermissionHelper.checkPostNotificationsPermission(this,
                 PermissionHelper.POST_NOTIFICATIONS_REQUEST_CODE)) {

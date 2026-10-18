@@ -11,11 +11,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import org.schabi.newpipe.DownloaderImpl;
 import org.schabi.newpipe.R;
 import org.schabi.newpipe.extractor.NewPipe;
+import org.schabi.newpipe.local.background.BackgroundRefreshWorker;
 import org.schabi.newpipe.player.helper.PlayerHelper;
 import org.schabi.newpipe.util.Localization;
 import org.schabi.newpipe.util.image.ImageStrategy;
@@ -36,6 +39,24 @@ public class ContentSettingsFragment extends BasePreferenceFragment {
 
         setupAppLanguagePreferences();
         setupImageQualityPref();
+        setupBackgroundRefreshPrefs();
+    }
+
+    private void setupBackgroundRefreshPrefs() {
+        final ListPreference interval =
+                requirePreference(R.string.background_refresh_interval_key);
+        final SwitchPreferenceCompat wifiOnly =
+                requirePreference(R.string.background_refresh_wifi_only_key);
+        interval.setOnPreferenceChangeListener((preference, newValue) -> {
+            BackgroundRefreshWorker.schedule(preference.getContext(),
+                    Long.parseLong((String) newValue), wifiOnly.isChecked(), true);
+            return true;
+        });
+        wifiOnly.setOnPreferenceChangeListener((preference, newValue) -> {
+            BackgroundRefreshWorker.schedule(preference.getContext(),
+                    Long.parseLong(interval.getValue()), (Boolean) newValue, true);
+            return true;
+        });
     }
 
     private void setupAppLanguagePreferences() {

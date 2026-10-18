@@ -139,6 +139,24 @@
         app:singleLineTitle="false"
         app:iconSpaceReserved="false">
 
+        <ListPreference
+            android:defaultValue="@string/background_refresh_interval_default"
+            android:entries="@array/background_refresh_interval_entries"
+            android:entryValues="@array/background_refresh_interval_values"
+            android:key="@string/background_refresh_interval_key"
+            android:summary="@string/background_refresh_interval_summary"
+            android:title="@string/background_refresh_interval_title"
+            app:singleLineTitle="false"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/background_refresh_wifi_only_key"
+            android:summary="@string/background_refresh_wifi_only_summary"
+            android:title="@string/background_refresh_wifi_only_title"
+            app:singleLineTitle="false"
+            app:iconSpaceReserved="false" />
+
         <org.schabi.newpipe.settings.custom.DurationListPreference
             android:defaultValue="@string/feed_update_threshold_default_value"
             android:entries="@array/feed_update_threshold_options"

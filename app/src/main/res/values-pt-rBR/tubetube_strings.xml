@@ -59,4 +59,16 @@
     <string name="takeout_playlists_import_done">Playlists importadas: %1$d (%2$d vídeos). Vídeos indisponíveis pulados: %3$d. Já existiam: %4$d</string>
     <string name="takeout_playlists_import_none">Nenhuma playlist encontrada neste arquivo</string>
     <string name="takeout_playlists_import_failed">Falha ao importar playlists: %s</string>
+    <string name="background_refresh_interval_title">Atualizar em segundo plano</string>
+    <string name="background_refresh_interval_summary">Busca vídeos novos dos seus canais e prepara as sugestões, pelo túnel: %s</string>
+    <string-array name="background_refresh_interval_entries">
+        <item>Desligado</item>
+        <item>A cada hora</item>
+        <item>A cada 3 horas</item>
+        <item>A cada 6 horas</item>
+        <item>A cada 12 horas</item>
+        <item>Uma vez por dia</item>
+    </string-array>
+    <string name="background_refresh_wifi_only_title">Só no Wi-Fi</string>
+    <string name="background_refresh_wifi_only_summary">Não usar dados móveis na atualização em segundo plano</string>
 </resources>

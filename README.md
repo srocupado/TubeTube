@@ -73,7 +73,9 @@ que já esteja no arquivo.
 - **Privacidade:** o histórico nunca sai do aparelho. As únicas requisições são as páginas dos
   vídeos, as mesmas que o app já abre, pelo túnel. Puxe para baixo para atualizar.
 - As sugestões ficam guardadas no aparelho: a aba abre na hora com a última lista (sem os vídeos que
-  você assistiu depois). Puxar para baixo calcula de novo.
+  você assistiu depois).
+- **Novidades no topo:** puxar a tela para baixo (e a atualização em segundo plano) coloca as
+  sugestões novas em cima; as que já estavam continuam logo abaixo.
 - **Rolagem infinita:** ao chegar no fim da lista o app busca mais, a partir de vídeos mais antigos do
   histórico, de vídeos novos dos canais inscritos e das próprias sugestões já mostradas.
 

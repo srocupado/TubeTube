@@ -31,6 +31,8 @@ object SuggestionsLoader {
     private const val SEEDS_PER_PAGE = 4
     private const val ITEMS_PER_PAGE = 30
     private const val MAX_BATCHES_PER_PAGE = 3
+    private const val MIN_NEW_ON_REFRESH = 10
+    private const val MAX_LIST_SIZE = 200
     private const val CONCURRENT_REQUESTS = 4
 
     /** Cached suggestions older than this are recomputed when the tab opens. */
@@ -51,8 +53,8 @@ object SuggestionsLoader {
     private val usedSeeds: MutableSet<String> = Collections.synchronizedSet(HashSet())
 
     /**
-     * Shows the cached suggestions (minus videos watched since) when fresh enough, otherwise
-     * computes new ones. [forceLoad] (pull to refresh) always computes.
+     * Shows the cached list (minus videos watched since) when fresh enough, otherwise refreshes
+     * it. [forceLoad] (pull to refresh) always refreshes.
      */
     fun load(context: Context, forceLoad: Boolean): Single<SuggestionsInfo> = Single.defer {
         if (!forceLoad) {
@@ -72,18 +74,34 @@ object SuggestionsLoader {
         refresh(context, forceLoad)
     }
 
-    /** Computes new suggestions and caches them; also used by the background refresh. */
+    /**
+     * Computes new suggestions and puts them at the top, above the ones already in the list
+     * (kept below, minus watched videos); caches the result. Also used by the background refresh.
+     */
     fun refresh(context: Context, forceLoad: Boolean): Single<SuggestionsInfo> = Single.fromCallable { localData(context) }
         .flatMap { data ->
+            val previous = SuggestionsCache.read(context)?.items.orEmpty()
+                .filter { it.url !in data.watchedUrls }
+            val previousUrls = previous.mapNotNull { it.url }.toHashSet()
             val seeds = initialSeeds(data)
             resetUsedSeeds(seeds)
             if (seeds.isEmpty()) {
-                return@flatMap Single.just(SuggestionsInfo(emptyList()))
+                return@flatMap Single.just(SuggestionsInfo(previous))
             }
-            relatedOf(seeds, forceLoad).map { related ->
-                val excluded = data.watchedUrls + seeds.map { it.url }
-                SuggestionsInfo(SuggestionRanker.rank(related, excluded, data.subscribedChannels))
-            }
+            val wanted = if (previous.isEmpty()) SuggestionRanker.DEFAULT_LIMIT else ITEMS_PER_PAGE
+            relatedOf(seeds, forceLoad).flatMap { related ->
+                val excluded = data.watchedUrls + previousUrls + seeds.map { it.url }
+                val fresh = SuggestionRanker.rank(related, excluded, data.subscribedChannels, wanted)
+                if (fresh.size >= MIN_NEW_ON_REFRESH || previous.isEmpty()) {
+                    Single.just(fresh)
+                } else {
+                    // the latest videos only gave suggestions already listed: start from others
+                    val shownUrls = previousUrls + fresh.mapNotNull { it.url }
+                    collect(data, candidates(data, previous), shownUrls, wanted - fresh.size, 0, forceLoad)
+                        .map { (more, _) -> fresh + more }
+                        .onErrorReturnItem(fresh)
+                }
+            }.map { fresh -> SuggestionsInfo((fresh + previous).take(MAX_LIST_SIZE)) }
         }
         .doOnSuccess { info ->
             if (info.relatedItems.isNotEmpty()) {
@@ -92,43 +110,60 @@ object SuggestionsLoader {
         }
 
     /**
-     * Next page for infinite scrolling.
+     * Next page for infinite scrolling, appended at the bottom.
      * @param shown the items already in the list, in display order
      */
     fun loadMore(context: Context, shown: List<StreamInfoItem>): Single<InfoItemsPage<InfoItem>> = Single.fromCallable { localData(context) }.flatMap { data ->
         val shownUrls = shown.mapNotNull { it.url }.toHashSet()
-        val candidates = (
-            data.history + data.unwatchedFeed +
-                shown.filter { it.serviceId == ServiceList.YouTube.serviceId && it.url != null }
-                    .map { Seed(it.serviceId, it.url) }
-            )
-            .distinctBy { it.url }
-            .filter { it.url !in usedSeeds }
-        nextBatch(data, candidates, shownUrls, 0)
+        collect(data, candidates(data, shown), shownUrls, ITEMS_PER_PAGE, 0, false)
+            .doOnSuccess { (items, _) ->
+                if (items.isNotEmpty()) {
+                    // the list keeps what was scrolled through, the next opening shows it too
+                    SuggestionsCache.write(context, (shown + items).take(MAX_LIST_SIZE))
+                }
+            }
+            .map { (items, hasMore) ->
+                InfoItemsPage<InfoItem>(
+                    ArrayList<InfoItem>(items),
+                    if (hasMore) SuggestionsInfo.NEXT_PAGE else null,
+                    emptyList()
+                )
+            }
     }
 
-    private fun nextBatch(
+    /** Seeds not used yet: older history, unwatched subscription videos, then [shown] items. */
+    private fun candidates(data: LocalData, shown: List<StreamInfoItem>): List<Seed> = (
+        data.history + data.unwatchedFeed +
+            shown.filter { it.serviceId == ServiceList.YouTube.serviceId && it.url != null }
+                .map { Seed(it.serviceId, it.url) }
+        )
+        .distinctBy { it.url }
+        .filter { it.url !in usedSeeds }
+
+    /** @return up to [wanted] new items, and whether more could still be computed */
+    private fun collect(
         data: LocalData,
         candidates: List<Seed>,
         shownUrls: Set<String>,
-        batch: Int
-    ): Single<InfoItemsPage<InfoItem>> {
+        wanted: Int,
+        batch: Int,
+        forceLoad: Boolean
+    ): Single<Pair<List<StreamInfoItem>, Boolean>> {
         val seeds = candidates.take(SEEDS_PER_PAGE)
         if (seeds.isEmpty()) {
             // nothing left to start from: end of the list
-            return Single.just(InfoItemsPage(emptyList(), null, emptyList()))
+            return Single.just(Pair(emptyList(), false))
         }
         usedSeeds += seeds.map { it.url }
         val rest = candidates.drop(seeds.size)
-        return relatedOf(seeds, false).flatMap { related ->
+        return relatedOf(seeds, forceLoad).flatMap { related ->
             val excluded = data.watchedUrls + shownUrls + seeds.map { it.url }
-            val items = SuggestionRanker.rank(related, excluded, data.subscribedChannels, ITEMS_PER_PAGE)
+            val items = SuggestionRanker.rank(related, excluded, data.subscribedChannels, wanted)
             if (items.isEmpty() && rest.isNotEmpty() && batch + 1 < MAX_BATCHES_PER_PAGE) {
                 // these seeds only had videos already shown: try the next ones
-                nextBatch(data, rest, shownUrls, batch + 1)
+                collect(data, rest, shownUrls, wanted, batch + 1, forceLoad)
             } else {
-                val next = if (rest.isEmpty() && items.isEmpty()) null else SuggestionsInfo.NEXT_PAGE
-                Single.just(InfoItemsPage<InfoItem>(ArrayList<InfoItem>(items), next, emptyList()))
+                Single.just(Pair(items, rest.isNotEmpty() || items.isNotEmpty()))
             }
         }
     }

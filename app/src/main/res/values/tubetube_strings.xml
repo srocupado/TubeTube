@@ -71,4 +71,5 @@
     </string-array>
     <string name="background_refresh_wifi_only_title">Only on Wi-Fi</string>
     <string name="background_refresh_wifi_only_summary">Do not use mobile data for the background update</string>
+    <string name="suggestions_nothing_new">No new suggestions right now</string>
 </resources>

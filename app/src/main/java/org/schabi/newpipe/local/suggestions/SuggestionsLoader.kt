@@ -76,38 +76,61 @@ object SuggestionsLoader {
 
     /**
      * Computes new suggestions and puts them at the top, above the ones already in the list
-     * (kept below, minus watched videos); caches the result. Also used by the background refresh.
+     * (kept below, minus watched videos); caches the result. Used when the list is (re)built and
+     * by the background refresh.
      */
     fun refresh(context: Context, forceLoad: Boolean): Single<SuggestionsInfo> = Single.fromCallable { localData(context) }
         .flatMap { data ->
             val previous = SuggestionsCache.read(context)?.items.orEmpty()
                 .filter { it.url !in data.watchedUrls }
-            val previousUrls = previous.mapNotNull { it.url }.toHashSet()
-            val seeds = initialSeeds(data)
-            resetUsedSeeds(seeds)
-            if (seeds.isEmpty()) {
-                return@flatMap Single.just(SuggestionsInfo(previous))
-            }
-            val wanted = if (previous.isEmpty()) SuggestionRanker.DEFAULT_LIMIT else ITEMS_PER_PAGE
-            relatedOf(seeds, forceLoad).flatMap { related ->
-                val excluded = data.watchedUrls + previousUrls + seeds.map { it.url }
-                val fresh = SuggestionRanker.rank(related, excluded, data.subscribedChannels, wanted)
-                if (fresh.size >= MIN_NEW_ON_REFRESH || previous.isEmpty()) {
-                    Single.just(fresh)
-                } else {
-                    // the latest videos only gave suggestions already listed: start from others
-                    val shownUrls = previousUrls + fresh.mapNotNull { it.url }
-                    collect(data, candidates(data, previous), shownUrls, wanted - fresh.size, 0, forceLoad)
-                        .map { (more, _) -> fresh + more }
-                        .onErrorReturnItem(fresh)
-                }
-            }.map { fresh -> SuggestionsInfo((fresh + previous).take(MAX_LIST_SIZE)) }
+            computeNew(data, previous, forceLoad)
+                .map { fresh -> SuggestionsInfo((fresh + previous).take(MAX_LIST_SIZE)) }
         }
         .doOnSuccess { info ->
             if (info.relatedItems.isNotEmpty()) {
                 SuggestionsCache.write(context, info.relatedItems.filterIsInstance<StreamInfoItem>())
             }
         }
+
+    /**
+     * Pull to refresh: suggestions not in [shown] yet, to be stacked above it.
+     * The cache is updated with the combined list.
+     */
+    fun newOnTop(context: Context, shown: List<StreamInfoItem>): Single<List<StreamInfoItem>> = Single.fromCallable { localData(context) }
+        .flatMap { data -> computeNew(data, shown, true) }
+        .doOnSuccess { fresh ->
+            if (fresh.isNotEmpty()) {
+                SuggestionsCache.write(context, (fresh + shown).take(MAX_LIST_SIZE))
+            }
+        }
+
+    /** New suggestions from the latest seeds, leaving out everything in [listed]. */
+    private fun computeNew(
+        data: LocalData,
+        listed: List<StreamInfoItem>,
+        forceLoad: Boolean
+    ): Single<List<StreamInfoItem>> {
+        val listedUrls = listed.mapNotNull { it.url }.toHashSet()
+        val seeds = initialSeeds(data)
+        resetUsedSeeds(seeds)
+        if (seeds.isEmpty()) {
+            return Single.just(emptyList())
+        }
+        val wanted = if (listed.isEmpty()) SuggestionRanker.DEFAULT_LIMIT else ITEMS_PER_PAGE
+        return relatedOf(seeds, forceLoad).flatMap { related ->
+            val excluded = data.watchedUrls + listedUrls + seeds.map { it.url }
+            val fresh = SuggestionRanker.rank(related, excluded, data.subscribedChannels, wanted)
+            if (fresh.size >= MIN_NEW_ON_REFRESH || listed.isEmpty()) {
+                Single.just(fresh)
+            } else {
+                // the latest videos only gave suggestions already listed: start from others
+                val shownUrls = listedUrls + fresh.mapNotNull { it.url }
+                collect(data, candidates(data, listed), shownUrls, wanted - fresh.size, 0, forceLoad)
+                    .map { (more, _) -> fresh + more }
+                    .onErrorReturnItem(fresh)
+            }
+        }
+    }
 
     /**
      * Next page for infinite scrolling, appended at the bottom.

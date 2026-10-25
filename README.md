@@ -80,10 +80,13 @@ que já esteja no arquivo.
   histórico, de vídeos novos dos canais inscritos e das próprias sugestões já mostradas.
 
 ### Atualização em segundo plano
-- **Configurações → Conteúdo → Feed → Atualizar em segundo plano** (padrão: a cada 3 horas;
+- **Configurações → Conteúdo → Feed → Atualizar em segundo plano** (padrão: a cada 6 horas;
   dá para desligar ou escolher 1, 6, 12 ou 24 horas, e "Só no Wi-Fi").
 - Periodicamente o app busca vídeos novos de todos os canais inscritos e prepara as sugestões,
   pelo túnel (ele espera o Tor ou a VPN conectar). Não roda com a bateria fraca.
+- Para não chamar atenção do YouTube: as sugestões só são refeitas em segundo plano quando você
+  assistiu algo novo, e se o YouTube responder "confirme que você não é um robô" a atualização
+  automática pausa por 6 horas (nada é repetido nem contornado).
 
 ### Ajustes de velocidade no Tor
 - **Conflux:** junta dois caminhos que terminam na mesma saída. Mais banda, mesmo IP.

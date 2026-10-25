@@ -33,7 +33,7 @@
     </string-array>
     <string name="takeout_playlists_import_key" translatable="false">takeout_playlists_import</string>
     <string name="background_refresh_interval_key" translatable="false">background_refresh_interval</string>
-    <string name="background_refresh_interval_default" translatable="false">3</string>
+    <string name="background_refresh_interval_default" translatable="false">6</string>
     <string-array name="background_refresh_interval_values" translatable="false">
         <item>0</item>
         <item>1</item>

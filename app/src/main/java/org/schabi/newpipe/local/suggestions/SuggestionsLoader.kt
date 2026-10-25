@@ -10,6 +10,7 @@ import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage
 import org.schabi.newpipe.extractor.ServiceList
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
+import org.schabi.newpipe.local.background.BotBlockGuard
 import org.schabi.newpipe.local.feed.FeedDatabaseManager
 import org.schabi.newpipe.util.ExtractorHelper
 
@@ -33,7 +34,7 @@ object SuggestionsLoader {
     private const val MAX_BATCHES_PER_PAGE = 3
     private const val MIN_NEW_ON_REFRESH = 10
     private const val MAX_LIST_SIZE = 200
-    private const val CONCURRENT_REQUESTS = 4
+    private const val CONCURRENT_REQUESTS = 3
 
     /** Cached suggestions older than this are recomputed when the tab opens. */
     private const val MAX_CACHE_AGE_MILLIS = 12 * 60 * 60 * 1000L
@@ -91,6 +92,7 @@ object SuggestionsLoader {
                 SuggestionsCache.write(context, info.relatedItems.filterIsInstance<StreamInfoItem>())
             }
         }
+        .doOnError { if (BotBlockGuard.isBotBlock(it)) BotBlockGuard.record(context) }
 
     /**
      * Pull to refresh: suggestions not in [shown] yet, to be stacked above it.
@@ -103,6 +105,7 @@ object SuggestionsLoader {
                 SuggestionsCache.write(context, (fresh + shown).take(MAX_LIST_SIZE))
             }
         }
+        .doOnError { if (BotBlockGuard.isBotBlock(it)) BotBlockGuard.record(context) }
 
     /** New suggestions from the latest seeds, leaving out everything in [listed]. */
     private fun computeNew(
@@ -139,6 +142,7 @@ object SuggestionsLoader {
     fun loadMore(context: Context, shown: List<StreamInfoItem>): Single<InfoItemsPage<InfoItem>> = Single.fromCallable { localData(context) }.flatMap { data ->
         val shownUrls = shown.mapNotNull { it.url }.toHashSet()
         collect(data, candidates(data, shown), shownUrls, ITEMS_PER_PAGE, 0, false)
+            .doOnError { if (BotBlockGuard.isBotBlock(it)) BotBlockGuard.record(context) }
             .doOnSuccess { (items, _) ->
                 if (items.isNotEmpty()) {
                     // the list keeps what was scrolled through, the next opening shows it too
@@ -252,5 +256,12 @@ object SuggestionsLoader {
 
     private fun relatedOf(seed: Seed, forceLoad: Boolean): Single<SeedResult> = ExtractorHelper.getStreamInfo(seed.serviceId, seed.url, forceLoad)
         .map { info -> SeedResult(info.relatedItems.filterIsInstance<StreamInfoItem>(), null) }
-        .onErrorReturn { SeedResult(emptyList(), it) }
+        .onErrorResumeNext { error ->
+            if (BotBlockGuard.isBotBlock(error)) {
+                // IP flagged by YouTube: stop here, more requests would only prolong the block
+                Single.error(error)
+            } else {
+                Single.just(SeedResult(emptyList(), error))
+            }
+        }
 }

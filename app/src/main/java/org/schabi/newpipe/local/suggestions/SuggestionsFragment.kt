@@ -18,6 +18,7 @@ import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage
 import org.schabi.newpipe.extractor.ServiceList
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.fragments.list.BaseListInfoFragment
+import org.schabi.newpipe.local.background.BotBlockGuard
 
 /**
  * "Suggestions" tab: videos similar to what the user watched, computed on the device.
@@ -90,7 +91,12 @@ class SuggestionsFragment :
                 },
                 { error ->
                     swipeRefresh?.isRefreshing = false
-                    showSnackBarError(ErrorInfo(error, UserAction.REQUESTED_FEED, "Loading new suggestions"))
+                    if (BotBlockGuard.isBotBlock(error)) {
+                        // not a bug: YouTube flagged the current IP for a while
+                        Toast.makeText(context, R.string.suggestions_bot_block, Toast.LENGTH_LONG).show()
+                    } else {
+                        showSnackBarError(ErrorInfo(error, UserAction.REQUESTED_FEED, "Loading new suggestions"))
+                    }
                 }
             )
     }

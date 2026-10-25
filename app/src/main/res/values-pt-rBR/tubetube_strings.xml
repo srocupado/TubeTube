@@ -72,4 +72,5 @@
     <string name="background_refresh_wifi_only_title">Só no Wi-Fi</string>
     <string name="background_refresh_wifi_only_summary">Não usar dados móveis na atualização em segundo plano</string>
     <string name="suggestions_nothing_new">Nenhuma sugestão nova por enquanto</string>
+    <string name="suggestions_bot_block">O YouTube está bloqueando este IP por um tempo (\"confirme que não é um robô\"). Tente mais tarde, troque de rede ou use o modo VPN</string>
 </resources>

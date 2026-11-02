@@ -79,6 +79,15 @@ que já esteja no arquivo.
 - **Rolagem infinita:** ao chegar no fim da lista o app busca mais, a partir de vídeos mais antigos do
   histórico, de vídeos novos dos canais inscritos e das próprias sugestões já mostradas.
 
+### Filtros (Sugestões e Inscrições)
+- Ícone de **filtro** no topo das abas Sugestões e Inscrições: data de publicação (24 h, semana,
+  mês, ano), duração (curtos, médios, longos), ordem (relevância/data, mais recentes, mais vistos,
+  mais curtos, mais longos), esconder Shorts, esconder ao vivo/agendados, esconder títulos com
+  certas palavras e, nas Sugestões, só canais que você segue.
+- Tudo é feito no aparelho e fica salvo por aba. Vídeo sem data ou duração conhecida não é
+  escondido pelo filtro correspondente. Nas Inscrições, "Shorts" são vídeos de até 1 minuto
+  (o feed não informa se é Short).
+
 ### Atualização em segundo plano
 - **Configurações → Conteúdo → Feed → Atualizar em segundo plano** (padrão: a cada 6 horas;
   dá para desligar ou escolher 1, 6, 12 ou 24 horas, e "Só no Wi-Fi").

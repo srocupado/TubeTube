@@ -75,6 +75,8 @@ import org.schabi.newpipe.ktx.animateHideRecyclerViewAllowingScrolling
 import org.schabi.newpipe.ktx.slideUp
 import org.schabi.newpipe.local.feed.item.StreamItem
 import org.schabi.newpipe.local.feed.service.FeedLoadService
+import org.schabi.newpipe.local.filter.VideoFilterDialog
+import org.schabi.newpipe.local.filter.VideoFilterStore
 import org.schabi.newpipe.local.subscription.SubscriptionManager
 import org.schabi.newpipe.util.DeviceUtils
 import org.schabi.newpipe.util.Localization
@@ -212,6 +214,12 @@ class FeedFragment : BaseStateFragment<FeedState>() {
         activity.supportActionBar?.subtitle = groupName
 
         inflater.inflate(R.menu.menu_feed_fragment, menu)
+        // read from the store: the menu can be created before the view model
+        val count = VideoFilterStore.FEED.load(requireContext()).activeCount
+        menu.findItem(R.id.menu_item_filter)?.let {
+            it.title = getString(R.string.filter_menu) + if (count > 0) " ($count)" else ""
+            it.icon?.alpha = if (count > 0) 255 else 160
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -237,6 +245,13 @@ class FeedFragment : BaseStateFragment<FeedState>() {
             return true
         } else if (item.itemId == R.id.menu_item_feed_toggle_played_items) {
             showStreamVisibilityDialog()
+        } else if (item.itemId == R.id.menu_item_filter) {
+            // TubeTube: filter and order the feed on the device
+            VideoFilterDialog.show(requireContext(), viewModel.getFilter(), showOnlySubscribed = false) {
+                viewModel.setSaveFilter(it)
+                activity?.invalidateOptionsMenu()
+            }
+            return true
         }
 
         return super.onOptionsItemSelected(item)

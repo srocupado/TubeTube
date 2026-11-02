@@ -73,4 +73,43 @@
     <string name="background_refresh_wifi_only_summary">Não usar dados móveis na atualização em segundo plano</string>
     <string name="suggestions_nothing_new">Nenhuma sugestão nova por enquanto</string>
     <string name="suggestions_bot_block">O YouTube está bloqueando este IP por um tempo (\"confirme que não é um robô\"). Tente mais tarde, troque de rede ou use o modo VPN</string>
+    <string name="filter_title">Filtrar e ordenar</string>
+    <string name="filter_menu">Filtrar</string>
+    <string name="filter_apply">Aplicar</string>
+    <string name="filter_clear">Limpar</string>
+    <string name="filter_period">Publicado</string>
+    <string-array name="filter_period_entries">
+        <item>Qualquer data</item>
+        <item>Últimas 24 horas</item>
+        <item>Última semana</item>
+        <item>Último mês</item>
+        <item>Último ano</item>
+    </string-array>
+    <string name="filter_length">Duração</string>
+    <string-array name="filter_length_entries">
+        <item>Qualquer</item>
+        <item>Curtos (até 4 min)</item>
+        <item>Médios (4 a 20 min)</item>
+        <item>Longos (mais de 20 min)</item>
+    </string-array>
+    <string name="filter_sort">Ordem</string>
+    <string-array name="filter_sort_entries_suggestions">
+        <item>Relevância</item>
+        <item>Mais recentes primeiro</item>
+        <item>Mais vistos</item>
+        <item>Mais curtos primeiro</item>
+        <item>Mais longos primeiro</item>
+    </string-array>
+    <string-array name="filter_sort_entries_feed">
+        <item>Padrão (por data)</item>
+        <item>Mais recentes primeiro</item>
+        <item>Mais vistos</item>
+        <item>Mais curtos primeiro</item>
+        <item>Mais longos primeiro</item>
+    </string-array>
+    <string name="filter_hide_shorts">Esconder Shorts</string>
+    <string name="filter_hide_live">Esconder ao vivo e agendados</string>
+    <string name="filter_only_subscribed">Só canais que eu sigo</string>
+    <string name="filter_hidden_words_hint">Esconder títulos com estas palavras (separe por vírgula)</string>
+    <string name="filter_no_results">Nenhum vídeo com esses filtros. Toque no ícone de filtro para mudar</string>
 </resources>

@@ -73,4 +73,43 @@
     <string name="background_refresh_wifi_only_summary">Do not use mobile data for the background update</string>
     <string name="suggestions_nothing_new">No new suggestions right now</string>
     <string name="suggestions_bot_block">YouTube is temporarily blocking this IP (\"confirm you\'re not a bot\"). Try again later, switch network, or use the VPN mode</string>
+    <string name="filter_title">Filter and sort</string>
+    <string name="filter_menu">Filter</string>
+    <string name="filter_apply">Apply</string>
+    <string name="filter_clear">Clear</string>
+    <string name="filter_period">Published</string>
+    <string-array name="filter_period_entries">
+        <item>Any time</item>
+        <item>Last 24 hours</item>
+        <item>Last week</item>
+        <item>Last month</item>
+        <item>Last year</item>
+    </string-array>
+    <string name="filter_length">Length</string>
+    <string-array name="filter_length_entries">
+        <item>Any</item>
+        <item>Short (under 4 min)</item>
+        <item>Medium (4 to 20 min)</item>
+        <item>Long (over 20 min)</item>
+    </string-array>
+    <string name="filter_sort">Order</string>
+    <string-array name="filter_sort_entries_suggestions">
+        <item>Relevance</item>
+        <item>Newest first</item>
+        <item>Most viewed</item>
+        <item>Shortest first</item>
+        <item>Longest first</item>
+    </string-array>
+    <string-array name="filter_sort_entries_feed">
+        <item>Default (by date)</item>
+        <item>Newest first</item>
+        <item>Most viewed</item>
+        <item>Shortest first</item>
+        <item>Longest first</item>
+    </string-array>
+    <string name="filter_hide_shorts">Hide Shorts</string>
+    <string name="filter_hide_live">Hide live and upcoming</string>
+    <string name="filter_only_subscribed">Only channels I follow</string>
+    <string name="filter_hidden_words_hint">Hide titles with these words (comma separated)</string>
+    <string name="filter_no_results">No videos match the filter. Tap the filter icon to change it</string>
 </resources>

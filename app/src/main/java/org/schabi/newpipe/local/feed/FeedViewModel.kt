@@ -11,7 +11,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.preference.PreferenceManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Flowable
-import io.reactivex.rxjava3.functions.Function6
+import io.reactivex.rxjava3.functions.Function7
 import io.reactivex.rxjava3.processors.BehaviorProcessor
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.time.OffsetDateTime
@@ -26,6 +26,9 @@ import org.schabi.newpipe.local.feed.service.FeedEventManager.Event.ErrorResultE
 import org.schabi.newpipe.local.feed.service.FeedEventManager.Event.IdleEvent
 import org.schabi.newpipe.local.feed.service.FeedEventManager.Event.ProgressEvent
 import org.schabi.newpipe.local.feed.service.FeedEventManager.Event.SuccessResultEvent
+import org.schabi.newpipe.local.filter.VideoFacts
+import org.schabi.newpipe.local.filter.VideoFilter
+import org.schabi.newpipe.local.filter.VideoFilterStore
 import org.schabi.newpipe.util.DEFAULT_THROTTLE_TIMEOUT
 
 class FeedViewModel(
@@ -52,6 +55,9 @@ class FeedViewModel(
         .startWithItem(initialShowFutureItems)
         .distinctUntilChanged()
 
+    // TubeTube: on-device filter and order (date, length, Shorts, words...)
+    private val filter = BehaviorProcessor.createDefault(VideoFilterStore.FEED.load(application))
+
     private val mutableStateLiveData = MutableLiveData<FeedState>()
     val stateLiveData: LiveData<FeedState> = mutableStateLiveData
 
@@ -63,26 +69,29 @@ class FeedViewModel(
             showFutureItemsFlowable,
             feedDatabaseManager.notLoadedCount(groupId),
             feedDatabaseManager.oldestSubscriptionUpdate(groupId),
+            filter.distinctUntilChanged(),
 
-            Function6 {
+            Function7 {
                     t1: FeedEventManager.Event,
                     t2: Boolean,
                     t3: Boolean,
                     t4: Boolean,
                     t5: Long,
-                    t6: List<OffsetDateTime?>
+                    t6: List<OffsetDateTime?>,
+                    t7: VideoFilter
                 ->
-                return@Function6 CombineResultEventHolder(t1, t2, t3, t4, t5, t6.firstOrNull())
+                return@Function7 CombineResultEventHolder(t1, t2, t3, t4, t5, t6.firstOrNull(), t7)
             }
         )
         .throttleLatest(DEFAULT_THROTTLE_TIMEOUT, TimeUnit.MILLISECONDS)
         .subscribeOn(Schedulers.io())
         .observeOn(Schedulers.io())
-        .map { (event, showPlayedItems, showPartiallyPlayedItems, showFutureItems, notLoadedCount, oldestUpdate) ->
+        .map { (event, showPlayedItems, showPartiallyPlayedItems, showFutureItems, notLoadedCount, oldestUpdate, videoFilter) ->
             val streamItems = if (event is SuccessResultEvent || event is IdleEvent) {
-                feedDatabaseManager
+                val streams = feedDatabaseManager
                     .getStreams(groupId, showPlayedItems, showPartiallyPlayedItems, showFutureItems)
                     .blockingGet(arrayListOf())
+                videoFilter.apply(streams) { VideoFacts.of(it.stream) }
             } else {
                 arrayListOf()
             }
@@ -116,7 +125,8 @@ class FeedViewModel(
         val t3: Boolean,
         val t4: Boolean,
         val t5: Long,
-        val t6: OffsetDateTime?
+        val t6: OffsetDateTime?,
+        val t7: VideoFilter
     )
 
     private data class CombineResultDataHolder(
@@ -125,6 +135,13 @@ class FeedViewModel(
         val t3: Long,
         val t4: OffsetDateTime?
     )
+
+    fun getFilter(): VideoFilter = filter.value ?: VideoFilter()
+
+    fun setSaveFilter(newFilter: VideoFilter) {
+        VideoFilterStore.FEED.save(application, newFilter)
+        filter.onNext(newFilter)
+    }
 
     fun setSaveShowPlayedItems(showPlayedItems: Boolean) {
         this.showPlayedItems.onNext(showPlayedItems)

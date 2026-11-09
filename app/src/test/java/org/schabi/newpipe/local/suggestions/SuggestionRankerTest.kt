@@ -1,8 +1,10 @@
 package org.schabi.newpipe.local.suggestions
 
+import java.time.OffsetDateTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
+import org.schabi.newpipe.extractor.localization.DateWrapper
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.extractor.stream.StreamType
 
@@ -32,6 +34,15 @@ class SuggestionRankerTest {
             setOf(watched.url),
             emptySet()
         )
+        assertEquals(listOf("b"), result.names())
+    }
+
+    @Test
+    fun scheduledPremieresAreExcluded() {
+        val premiere = video("premiere").apply {
+            uploadDate = DateWrapper(OffsetDateTime.now().plusDays(4))
+        }
+        val result = SuggestionRanker.rank(listOf(listOf(premiere, video("b"))), emptySet(), emptySet())
         assertEquals(listOf("b"), result.names())
     }
 

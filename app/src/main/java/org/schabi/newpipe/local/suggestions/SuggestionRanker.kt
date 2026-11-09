@@ -1,5 +1,6 @@
 package org.schabi.newpipe.local.suggestions
 
+import java.time.OffsetDateTime
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.extractor.stream.StreamType
 
@@ -25,7 +26,8 @@ object SuggestionRanker {
         relatedPerSeed: List<List<StreamInfoItem>>,
         excludedUrls: Set<String>,
         subscribedChannelUrls: Set<String>,
-        limit: Int = DEFAULT_LIMIT
+        limit: Int = DEFAULT_LIMIT,
+        now: OffsetDateTime = OffsetDateTime.now()
     ): List<StreamInfoItem> {
         val scores = LinkedHashMap<String, Double>()
         val items = HashMap<String, StreamInfoItem>()
@@ -35,7 +37,7 @@ object SuggestionRanker {
             val seedWeight = 1.0 / (1.0 + 0.25 * seedIndex)
             related.forEachIndexed { position, item ->
                 val url = item.url
-                if (url.isNullOrEmpty() || url in excludedUrls || isLive(item)) {
+                if (url.isNullOrEmpty() || url in excludedUrls || isLive(item) || isUpcoming(item, now)) {
                     return@forEachIndexed
                 }
                 val positionWeight = 1.0 / (1.0 + 0.15 * position)
@@ -61,6 +63,9 @@ object SuggestionRanker {
             }
             .take(limit)
     }
+
+    /** Scheduled premieres: listed before they can be watched ("Premieres in 4 days"). */
+    fun isUpcoming(item: StreamInfoItem, now: OffsetDateTime = OffsetDateTime.now()): Boolean = item.uploadDate?.offsetDateTime()?.isAfter(now) == true
 
     private fun isLive(item: StreamInfoItem) = item.streamType == StreamType.LIVE_STREAM || item.streamType == StreamType.AUDIO_LIVE_STREAM
 }

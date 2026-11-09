@@ -64,7 +64,7 @@ object SuggestionsLoader {
                 System.currentTimeMillis() - cached.savedAtMillis < MAX_CACHE_AGE_MILLIS
             ) {
                 val data = localData(context)
-                val fresh = cached.items.filter { it.url !in data.watchedUrls }
+                val fresh = cached.items.filter { it.url !in data.watchedUrls && !SuggestionRanker.isUpcoming(it) }
                 if (fresh.isNotEmpty()) {
                     // the cached list came from these seeds
                     resetUsedSeeds(initialSeeds(data))
@@ -83,7 +83,7 @@ object SuggestionsLoader {
     fun refresh(context: Context, forceLoad: Boolean): Single<SuggestionsInfo> = Single.fromCallable { localData(context) }
         .flatMap { data ->
             val previous = SuggestionsCache.read(context)?.items.orEmpty()
-                .filter { it.url !in data.watchedUrls }
+                .filter { it.url !in data.watchedUrls && !SuggestionRanker.isUpcoming(it) }
             computeNew(data, previous, forceLoad)
                 .map { fresh -> SuggestionsInfo((fresh + previous).take(MAX_LIST_SIZE)) }
         }

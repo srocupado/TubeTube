@@ -73,6 +73,7 @@ import org.schabi.newpipe.info_list.dialog.InfoItemDialog
 import org.schabi.newpipe.ktx.animate
 import org.schabi.newpipe.ktx.animateHideRecyclerViewAllowingScrolling
 import org.schabi.newpipe.ktx.slideUp
+import org.schabi.newpipe.local.feed.item.FeedSectionHeaderItem
 import org.schabi.newpipe.local.feed.item.StreamItem
 import org.schabi.newpipe.local.feed.service.FeedLoadService
 import org.schabi.newpipe.local.filter.VideoFilterDialog
@@ -401,6 +402,10 @@ class FeedFragment : BaseStateFragment<FeedState>() {
 
     private val listenerStreamItem = object : OnItemClickListener, OnItemLongClickListener {
         override fun onItemClick(item: Item<*>, view: View) {
+            if (item is FeedSectionHeaderItem && item.expanded != null) {
+                setUpcomingExpanded(!item.expanded)
+                return
+            }
             if (item is StreamItem && !isRefreshing) {
                 val stream = item.streamWithState.stream
                 NavigationHelper.openVideoDetailFragment(
@@ -436,7 +441,7 @@ class FeedFragment : BaseStateFragment<FeedState>() {
         // This need to be saved in a variable as the update occurs async
         val oldOldestSubscriptionUpdate = oldestSubscriptionUpdate
 
-        groupAdapter.updateAsync(loadedState.items, false) {
+        groupAdapter.updateAsync(withSections(loadedState.items), false) {
             oldOldestSubscriptionUpdate?.run {
                 highlightNewItemsAfter(oldOldestSubscriptionUpdate)
             }
@@ -555,6 +560,42 @@ class FeedFragment : BaseStateFragment<FeedState>() {
             .show()
     }
 
+    // TubeTube: "Coming soon" (premieres, scheduled lives) apart from the regular feed
+
+    private val upcomingExpandedKey = "tubetube_feed_upcoming_expanded"
+
+    private fun isUpcomingExpanded(): Boolean = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        .getBoolean(upcomingExpandedKey, false)
+
+    private fun setUpcomingExpanded(expanded: Boolean) {
+        PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
+            putBoolean(upcomingExpandedKey, expanded)
+        }
+        (viewModel.stateLiveData.value as? FeedState.LoadedState)?.let(::handleLoadedState)
+    }
+
+    private fun isUpcoming(item: StreamItem, now: OffsetDateTime): Boolean = item.streamWithState.stream.uploadDate?.isAfter(now) == true
+
+    private fun withSections(items: List<StreamItem>): List<Item<*>> {
+        val now = OffsetDateTime.now()
+        val (upcoming, released) = items.partition { isUpcoming(it, now) }
+        if (upcoming.isEmpty()) {
+            return items
+        }
+        val expanded = isUpcomingExpanded()
+        val result = ArrayList<Item<*>>(items.size + 2)
+        result += FeedSectionHeaderItem(getString(R.string.feed_section_upcoming, upcoming.size), expanded)
+        if (expanded) {
+            // soonest first
+            result += upcoming.sortedBy { it.streamWithState.stream.uploadDate }
+        }
+        if (released.isNotEmpty()) {
+            result += FeedSectionHeaderItem(getString(R.string.feed_section_feed), null)
+            result += released
+        }
+        return result
+    }
+
     private fun updateRelativeTimeViews() {
         updateRefreshViewState()
         groupAdapter.notifyItemRangeChanged(
@@ -579,8 +620,14 @@ class FeedFragment : BaseStateFragment<FeedState>() {
 
         var doCheck = true
 
+        val now = OffsetDateTime.now()
+        var lastHighlighted = -1
         for (i in 0 until groupAdapter.itemCount) {
-            val item = groupAdapter.getItem(i) as StreamItem
+            // TubeTube: section headers and "coming soon" items are not new uploads
+            val item = groupAdapter.getItem(i) as? StreamItem ?: continue
+            if (isUpcoming(item, now)) {
+                continue
+            }
 
             var typeface = Typeface.DEFAULT
             var backgroundSupplier = { ctx: Context ->
@@ -590,6 +637,7 @@ class FeedFragment : BaseStateFragment<FeedState>() {
                 // If the uploadDate is null or true we should highlight the item
                 if (item.streamWithState.stream.uploadDate?.isAfter(updateTime) != false) {
                     highlightCount++
+                    lastHighlighted = i
 
                     typeface = Typeface.DEFAULT_BOLD
                     backgroundSupplier = { ctx: Context ->
@@ -623,7 +671,7 @@ class FeedFragment : BaseStateFragment<FeedState>() {
         // state until the user scrolls them out of the visible area which causes a update/bind-call
         groupAdapter.notifyItemRangeChanged(
             0,
-            highlightCount.coerceIn(lastNewItemsCount, groupAdapter.itemCount)
+            maxOf(lastHighlighted + 1, highlightCount).coerceIn(lastNewItemsCount, groupAdapter.itemCount)
         )
 
         if (highlightCount > 0) {

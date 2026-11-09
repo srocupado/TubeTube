@@ -112,4 +112,6 @@
     <string name="filter_only_subscribed">Só canais que eu sigo</string>
     <string name="filter_hidden_words_hint">Esconder títulos com estas palavras (separe por vírgula)</string>
     <string name="filter_no_results">Nenhum vídeo com esses filtros. Toque no ícone de filtro para mudar</string>
+    <string name="feed_section_upcoming">Em breve (%d)</string>
+    <string name="feed_section_feed">Feed</string>
 </resources>

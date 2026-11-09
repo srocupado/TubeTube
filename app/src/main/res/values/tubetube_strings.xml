@@ -112,4 +112,6 @@
     <string name="filter_only_subscribed">Only channels I follow</string>
     <string name="filter_hidden_words_hint">Hide titles with these words (comma separated)</string>
     <string name="filter_no_results">No videos match the filter. Tap the filter icon to change it</string>
+    <string name="feed_section_upcoming">Coming soon (%d)</string>
+    <string name="feed_section_feed">Feed</string>
 </resources>

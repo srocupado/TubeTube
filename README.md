@@ -79,6 +79,11 @@ que já esteja no arquivo.
 - **Rolagem infinita:** ao chegar no fim da lista o app busca mais, a partir de vídeos mais antigos do
   histórico, de vídeos novos dos canais inscritos e das próprias sugestões já mostradas.
 
+### Inscrições: "Em breve" separado
+- Estreias e lives agendadas ficam numa seção **Em breve** no topo da aba Inscrições (fechada por
+  padrão; toque para abrir, a mais próxima primeiro). Abaixo vem o **Feed** com o que já saiu.
+- Nas Sugestões, estreias agendadas não aparecem.
+
 ### Filtros (Sugestões e Inscrições)
 - Ícone de **filtro** no topo das abas Sugestões e Inscrições: data de publicação (24 h, semana,
   mês, ano), duração (curtos, médios, longos), ordem (relevância/data, mais recentes, mais vistos,

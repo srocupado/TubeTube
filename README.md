@@ -79,6 +79,13 @@ que já esteja no arquivo.
 - **Rolagem infinita:** ao chegar no fim da lista o app busca mais, a partir de vídeos mais antigos do
   histórico, de vídeos novos dos canais inscritos e das próprias sugestões já mostradas.
 
+### Notificações de vídeos novos
+- Na aba **Inscrições**, ícone de **sino**: marque os canais que devem avisar (botão "Todos /
+  nenhum" para marcar tudo). O app pede a permissão de notificação do Android se precisar.
+- A checagem acontece junto com a **atualização em segundo plano** (mesmo intervalo, pelo túnel,
+  esperando ele conectar). Se a atualização em segundo plano estiver desligada, vale o intervalo
+  de Configurações → Notificações.
+
 ### Inscrições: "Em breve" separado
 - Estreias e lives agendadas ficam numa seção **Em breve** no topo da aba Inscrições (fechada por
   padrão; toque para abrir, a mais próxima primeiro). Abaixo vem o **Feed** com o que já saiu.

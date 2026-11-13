@@ -75,6 +75,7 @@ import org.schabi.newpipe.ktx.animateHideRecyclerViewAllowingScrolling
 import org.schabi.newpipe.ktx.slideUp
 import org.schabi.newpipe.local.feed.item.FeedSectionHeaderItem
 import org.schabi.newpipe.local.feed.item.StreamItem
+import org.schabi.newpipe.local.feed.notifications.NewVideoNotificationsDialog
 import org.schabi.newpipe.local.feed.service.FeedLoadService
 import org.schabi.newpipe.local.filter.VideoFilterDialog
 import org.schabi.newpipe.local.filter.VideoFilterStore
@@ -246,6 +247,10 @@ class FeedFragment : BaseStateFragment<FeedState>() {
             return true
         } else if (item.itemId == R.id.menu_item_feed_toggle_played_items) {
             showStreamVisibilityDialog()
+        } else if (item.itemId == R.id.menu_item_new_video_notifications) {
+            // TubeTube: choose which channels notify about new videos
+            NewVideoNotificationsDialog.show(requireActivity())
+            return true
         } else if (item.itemId == R.id.menu_item_filter) {
             // TubeTube: filter and order the feed on the device
             VideoFilterDialog.show(requireContext(), viewModel.getFilter(), showOnlySubscribed = false) {

@@ -17,6 +17,13 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/menu_item_new_video_notifications"
+        android:icon="@drawable/ic_notifications"
+        android:orderInCategory="3"
+        android:title="@string/new_video_notifications_title"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/menu_item_feed_help"
         android:icon="@drawable/ic_help"
         android:title="@string/fast_mode"

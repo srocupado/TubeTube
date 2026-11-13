@@ -22,6 +22,7 @@ import org.schabi.newpipe.R
 import org.schabi.newpipe.error.ErrorInfo
 import org.schabi.newpipe.error.ErrorUtil
 import org.schabi.newpipe.error.UserAction
+import org.schabi.newpipe.local.background.BackgroundRefreshWorker
 import org.schabi.newpipe.local.feed.service.FeedLoadManager
 import org.schabi.newpipe.local.feed.service.FeedLoadService
 
@@ -40,35 +41,40 @@ class NotificationWorker(
     private val feedLoadManager = FeedLoadManager(appContext)
 
     override fun createWork(): Single<Result> = if (areNotificationsEnabled(applicationContext)) {
-        feedLoadManager.startLoading(
-            ignoreOutdatedThreshold = true,
-            groupId = FeedLoadManager.GROUP_NOTIFICATION_ENABLED
-        )
-            .doOnSubscribe { showLoadingFeedForegroundNotification() }
-            .map { feed ->
-                // filter out feedUpdateInfo items (i.e. channels) with nothing new
-                feed.mapNotNull {
-                    it.value?.takeIf { feedUpdateInfo ->
-                        feedUpdateInfo.newStreams.isNotEmpty()
-                    }
-                }
-            }
-            .observeOn(AndroidSchedulers.mainThread()) // Picasso requires calls from main thread
-            .map { feedUpdateInfoList ->
-                // display notifications for each feedUpdateInfo (i.e. channel)
-                feedUpdateInfoList.forEach { feedUpdateInfo ->
-                    notificationHelper.displayNewStreamsNotifications(feedUpdateInfo)
-                }
-                return@map Result.success()
-            }
-            .doOnError { throwable ->
-                Log.e(TAG, "Error while displaying streams notifications", throwable)
-                ErrorUtil.createNotification(
-                    applicationContext,
-                    ErrorInfo(throwable, UserAction.NEW_STREAMS_NOTIFICATIONS, "main worker")
+        // TubeTube: nothing leaves the device until the privacy tunnel is up
+        BackgroundRefreshWorker.waitForTunnel().andThen(
+            Single.defer {
+                feedLoadManager.startLoading(
+                    ignoreOutdatedThreshold = true,
+                    groupId = FeedLoadManager.GROUP_NOTIFICATION_ENABLED
                 )
+                    .doOnSubscribe { showLoadingFeedForegroundNotification() }
+                    .map { feed ->
+                        // filter out feedUpdateInfo items (i.e. channels) with nothing new
+                        feed.mapNotNull {
+                            it.value?.takeIf { feedUpdateInfo ->
+                                feedUpdateInfo.newStreams.isNotEmpty()
+                            }
+                        }
+                    }
+                    .observeOn(AndroidSchedulers.mainThread()) // Picasso requires calls from main thread
+                    .map { feedUpdateInfoList ->
+                        // display notifications for each feedUpdateInfo (i.e. channel)
+                        feedUpdateInfoList.forEach { feedUpdateInfo ->
+                            notificationHelper.displayNewStreamsNotifications(feedUpdateInfo)
+                        }
+                        return@map Result.success()
+                    }
+                    .doOnError { throwable ->
+                        Log.e(TAG, "Error while displaying streams notifications", throwable)
+                        ErrorUtil.createNotification(
+                            applicationContext,
+                            ErrorInfo(throwable, UserAction.NEW_STREAMS_NOTIFICATIONS, "main worker")
+                        )
+                    }
+                    .onErrorReturnItem(Result.failure())
             }
-            .onErrorReturnItem(Result.failure())
+        ).onErrorReturnItem(Result.success())
     } else {
         // the user can disable streams notifications in the device's app settings
         Single.just(Result.success())
@@ -105,8 +111,20 @@ class NotificationWorker(
          */
         @JvmStatic
         fun initialize(context: Context) {
+            // TubeTube: the background update already checks for new videos and notifies;
+            // a second periodic job would load the feed twice
+            if (BackgroundRefreshWorker.isEnabled(context)) {
+                cancel(context)
+            } else {
+                initializeStandalone(context)
+            }
+        }
+
+        /** Upstream behaviour, used when the background update is off. */
+        @JvmStatic
+        fun initializeStandalone(context: Context) {
             if (areNotificationsEnabled(context)) {
-                schedule(context)
+                scheduleInternal(context, ScheduleOptions.from(context), false)
             } else {
                 cancel(context)
             }
@@ -119,6 +137,14 @@ class NotificationWorker(
          * by replacing the previously used worker.
          */
         fun schedule(context: Context, options: ScheduleOptions, force: Boolean = false) {
+            if (BackgroundRefreshWorker.isEnabled(context)) {
+                cancel(context)
+                return
+            }
+            scheduleInternal(context, options, force)
+        }
+
+        private fun scheduleInternal(context: Context, options: ScheduleOptions, force: Boolean) {
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(
                     if (options.isRequireNonMeteredNetwork) {

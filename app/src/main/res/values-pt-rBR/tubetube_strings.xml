@@ -114,4 +114,8 @@
     <string name="filter_no_results">Nenhum vídeo com esses filtros. Toque no ícone de filtro para mudar</string>
     <string name="feed_section_upcoming">Em breve (%d)</string>
     <string name="feed_section_feed">Feed</string>
+    <string name="new_video_notifications_title">Notificar vídeos novos</string>
+    <string name="new_video_notifications_all">Todos / nenhum</string>
+    <string name="new_video_notifications_no_channels">Siga ou importe alguns canais primeiro</string>
+    <string name="new_video_notifications_blocked">As notificações do TubeTube estão bloqueadas nas configurações do Android: libere lá</string>
 </resources>

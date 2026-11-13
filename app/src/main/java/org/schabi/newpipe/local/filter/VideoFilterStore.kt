@@ -7,7 +7,8 @@ import androidx.preference.PreferenceManager
 /** Remembers the filter of each list (Suggestions, Subscriptions) on the device. */
 enum class VideoFilterStore(private val key: String) {
     SUGGESTIONS("tubetube_filter_suggestions"),
-    FEED("tubetube_filter_feed");
+    FEED("tubetube_filter_feed"),
+    SEARCH("tubetube_filter_search");
 
     fun load(context: Context): VideoFilter = VideoFilter.decode(PreferenceManager.getDefaultSharedPreferences(context).getString(key, null))
 

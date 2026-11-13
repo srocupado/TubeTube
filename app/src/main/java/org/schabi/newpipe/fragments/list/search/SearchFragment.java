@@ -63,6 +63,10 @@ import org.schabi.newpipe.fragments.BackPressable;
 import org.schabi.newpipe.fragments.list.BaseListFragment;
 import org.schabi.newpipe.ktx.AnimationType;
 import org.schabi.newpipe.ktx.ExceptionUtils;
+import org.schabi.newpipe.local.filter.InfoItemsFilter;
+import org.schabi.newpipe.local.filter.VideoFilter;
+import org.schabi.newpipe.local.filter.VideoFilterDialog;
+import org.schabi.newpipe.local.filter.VideoFilterStore;
 import org.schabi.newpipe.local.history.HistoryRecordManager;
 import org.schabi.newpipe.settings.NewPipeSettings;
 import org.schabi.newpipe.util.Constants;
@@ -90,6 +94,14 @@ import io.reactivex.rxjava3.subjects.PublishSubject;
 
 public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<?>>
         implements BackPressable {
+    // TubeTube: on-device filter and order of the results (date, length, Shorts, words...)
+    private static final int MENU_ITEM_VIDEO_FILTER = 10_000;
+    private static final int MAX_EMPTY_PAGES_IN_A_ROW = 3;
+    private VideoFilter videoFilter = new VideoFilter();
+    /** Every result loaded for the current search, before the filter. */
+    private final List<InfoItem> rawResults = new ArrayList<>();
+    private int emptyPagesInARow = 0;
+
     /*//////////////////////////////////////////////////////////////////////////
     // Search
     //////////////////////////////////////////////////////////////////////////*/
@@ -202,6 +214,7 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
     @Override
     public void onAttach(@NonNull final Context context) {
         super.onAttach(context);
+        videoFilter = VideoFilterStore.SEARCH.load(context);
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
         showLocalSuggestions = NewPipeSettings.showLocalSearchSuggestions(activity, prefs);
@@ -477,11 +490,29 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
         }
         menu.setGroupCheckable(1, true, true);
 
+        final int activeFilters = videoFilter.getActiveCount();
+        final MenuItem videoFilterItem = menu.add(0, MENU_ITEM_VIDEO_FILTER, 0,
+                getString(R.string.filter_menu)
+                        + (activeFilters > 0 ? " (" + activeFilters + ")" : ""));
+        videoFilterItem.setIcon(R.drawable.ic_filter_list);
+        videoFilterItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
         restoreFilterChecked(menu, filterItemCheckedId);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
+        if (item.getItemId() == MENU_ITEM_VIDEO_FILTER) {
+            VideoFilterDialog.INSTANCE.show(requireContext(), videoFilter, false, newFilter -> {
+                videoFilter = newFilter;
+                VideoFilterStore.SEARCH.save(requireContext(), newFilter);
+                activity.invalidateOptionsMenu();
+                emptyPagesInARow = 0;
+                rerenderResults();
+                return kotlin.Unit.INSTANCE;
+            });
+            return true;
+        }
         final var filter = Collections.singletonList(menuItemToFilterName.get(item.getItemId()));
         changeContentFilter(item, filter);
         return true;
@@ -882,6 +913,9 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
     @Override
     public void startLoading(final boolean forceLoad) {
         super.startLoading(forceLoad);
+        rawResults.clear();
+        emptyPagesInARow = 0;
+        setEmptyStateMessage(R.string.search_no_results);
         disposables.clear();
         if (searchDisposable != null) {
             searchDisposable.dispose();
@@ -1061,8 +1095,21 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
         nextPage = result.getNextPage();
 
         if (infoListAdapter.getItemsList().isEmpty()) {
-            if (!result.getRelatedItems().isEmpty()) {
-                infoListAdapter.addInfoItemList(result.getRelatedItems());
+            rawResults.clear();
+            rawResults.addAll(result.getRelatedItems());
+            emptyPagesInARow = 0;
+            final List<InfoItem> visible = InfoItemsFilter.apply(videoFilter, rawResults);
+            if (!visible.isEmpty()) {
+                infoListAdapter.addInfoItemList(visible);
+            } else if (!rawResults.isEmpty()) {
+                // everything filtered out: try the next page, else say so
+                super.handleResult(result);
+                if (hasMoreItems() && ++emptyPagesInARow < MAX_EMPTY_PAGES_IN_A_ROW) {
+                    loadMoreItems();
+                } else {
+                    showFilteredOutState();
+                }
+                return;
             } else {
                 infoListAdapter.clearStreamItemList();
                 showEmptyState();
@@ -1071,6 +1118,32 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
         }
 
         super.handleResult(result);
+    }
+
+    /** Shows the loaded results again through the current filter. */
+    private void rerenderResults() {
+        if (rawResults.isEmpty()) {
+            // e.g. restored from saved state: what is on screen is all we have
+            rawResults.addAll(infoListAdapter.getItemsList());
+        }
+        if (rawResults.isEmpty()) {
+            return;
+        }
+        final List<InfoItem> visible = InfoItemsFilter.apply(videoFilter, rawResults);
+        infoListAdapter.clearStreamItemList();
+        if (visible.isEmpty()) {
+            showFilteredOutState();
+        } else {
+            infoListAdapter.addInfoItemList(visible);
+            hideLoading();
+            showListFooter(hasMoreItems());
+            itemsList.scrollToPosition(0);
+        }
+    }
+
+    private void showFilteredOutState() {
+        showEmptyState();
+        setEmptyStateMessage(R.string.filter_no_results);
     }
 
     private void handleSearchSuggestion() {
@@ -1107,7 +1180,24 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
     @Override
     public void handleNextItems(final ListExtractor.InfoItemsPage<?> result) {
         showListFooter(false);
-        infoListAdapter.addInfoItemList(result.getItems());
+        rawResults.addAll(result.getItems());
+        if (videoFilter.getSort() == VideoFilter.Sort.DEFAULT) {
+            final List<InfoItem> visibleNew = InfoItemsFilter.apply(videoFilter,
+                    new ArrayList<>(result.getItems()));
+            infoListAdapter.addInfoItemList(visibleNew);
+            if (!visibleNew.isEmpty()) {
+                emptyPagesInARow = 0;
+                hideLoading();
+            } else if (hasMoreItems() && ++emptyPagesInARow < MAX_EMPTY_PAGES_IN_A_ROW) {
+                // nothing new passed the filter, so the list did not grow: fetch the next page
+                itemsList.post(this::loadMoreItems);
+            } else if (infoListAdapter.getItemsList().isEmpty()) {
+                showFilteredOutState();
+            }
+        } else {
+            // sorted results are shown whole again, the new ones take their place in the order
+            rerenderResults();
+        }
 
         if (!result.getErrors().isEmpty()) {
             // nextPage should be non-null at this point, because it refers to the page

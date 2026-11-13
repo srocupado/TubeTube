@@ -84,8 +84,8 @@ que já esteja no arquivo.
   padrão; toque para abrir, a mais próxima primeiro). Abaixo vem o **Feed** com o que já saiu.
 - Nas Sugestões, estreias agendadas não aparecem.
 
-### Filtros (Sugestões e Inscrições)
-- Ícone de **filtro** no topo das abas Sugestões e Inscrições: data de publicação (24 h, semana,
+### Filtros (Sugestões, Inscrições e Busca)
+- Ícone de **filtro** no topo das abas Sugestões e Inscrições e da tela de busca: data de publicação (24 h, semana,
   mês, ano), duração (curtos, médios, longos), ordem (relevância/data, mais recentes, mais vistos,
   mais curtos, mais longos), esconder Shorts, esconder ao vivo/agendados, esconder títulos com
   certas palavras e, nas Sugestões, só canais que você segue.

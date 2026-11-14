@@ -79,6 +79,12 @@ que já esteja no arquivo.
 - **Rolagem infinita:** ao chegar no fim da lista o app busca mais, a partir de vídeos mais antigos do
   histórico, de vídeos novos dos canais inscritos e das próprias sugestões já mostradas.
 
+### Busca por voz
+- Microfone ao lado do campo de busca. Usa o app de reconhecimento de voz do celular, pedindo o
+  modo **offline** (no aparelho). Com o reconhecedor do Google, o áudio só fica no celular se o
+  pacote de idioma offline estiver baixado; para não depender do Google, instale um reconhecedor
+  offline de código aberto (ex.: FUTO Voice Input) e escolha-o como padrão.
+
 ### Notificações de vídeos novos
 - Na aba **Inscrições**, ícone de **sino**: marque os canais que devem avisar (botão "Todos /
   nenhum" para marcar tudo). O app pede a permissão de notificação do Android se precisar.

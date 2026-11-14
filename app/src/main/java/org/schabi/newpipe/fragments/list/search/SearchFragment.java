@@ -7,10 +7,12 @@ import static org.schabi.newpipe.util.ExtractorHelper.showMetaInfoInTextView;
 import static java.util.Arrays.asList;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
@@ -28,7 +30,11 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -80,6 +86,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -178,6 +185,11 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
     private View searchToolbarContainer;
     private EditText searchEditText;
     private View searchClear;
+    private View searchVoice;
+    /** TubeTube: voice search; prefers on-device recognition, so audio can stay on the phone. */
+    private final ActivityResultLauncher<Intent> voiceSearchLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                    this::onVoiceSearchResult);
 
     private boolean suggestionsPanelVisible = false;
 
@@ -394,6 +406,7 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
         searchToolbarContainer = activity.findViewById(R.id.toolbar_search_container);
         searchEditText = searchToolbarContainer.findViewById(R.id.toolbar_search_edit_text);
         searchClear = searchToolbarContainer.findViewById(R.id.toolbar_search_clear);
+        searchVoice = searchToolbarContainer.findViewById(R.id.toolbar_search_voice);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -581,6 +594,22 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
 
         TooltipCompat.setTooltipText(searchClear, getString(R.string.clear));
 
+        final Intent voiceIntent = voiceSearchIntent();
+        if (voiceIntent.resolveActivity(requireContext().getPackageManager()) == null) {
+            searchVoice.setVisibility(View.GONE);
+        } else {
+            searchVoice.setVisibility(View.VISIBLE);
+            searchVoice.setOnClickListener(v -> {
+                try {
+                    voiceSearchLauncher.launch(voiceSearchIntent());
+                } catch (final ActivityNotFoundException e) {
+                    Toast.makeText(requireContext(), R.string.voice_search_unavailable,
+                            Toast.LENGTH_LONG).show();
+                }
+            });
+            TooltipCompat.setTooltipText(searchVoice, getString(R.string.voice_search));
+        }
+
         searchEditText.setOnClickListener(v -> {
             if (DEBUG) {
                 Log.d(TAG, "onClick() called with: v = [" + v + "]");
@@ -682,6 +711,7 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
         }
         searchClear.setOnClickListener(null);
         searchClear.setOnLongClickListener(null);
+        searchVoice.setOnClickListener(null);
         searchEditText.setOnClickListener(null);
         searchEditText.setOnFocusChangeListener(null);
         searchEditText.setOnEditorActionListener(null);
@@ -849,6 +879,31 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
     @Override
     protected void doInitialLoadLogic() {
         // no-op
+    }
+
+    private Intent voiceSearchIntent() {
+        return new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault().toLanguageTag())
+                .putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+                .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+                .putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.voice_search));
+    }
+
+    private void onVoiceSearchResult(final ActivityResult result) {
+        if (result.getResultCode() != Activity.RESULT_OK || result.getData() == null) {
+            return;
+        }
+        final ArrayList<String> spoken = result.getData()
+                .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+        if (spoken == null || spoken.isEmpty() || spoken.get(0).trim().isEmpty()) {
+            return;
+        }
+        final String query = spoken.get(0).trim();
+        searchEditText.setText(query);
+        searchEditText.setSelection(query.length());
+        search(query, contentFilter, sortFilter);
     }
 
     /**

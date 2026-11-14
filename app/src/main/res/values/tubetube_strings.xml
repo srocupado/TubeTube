@@ -118,4 +118,6 @@
     <string name="new_video_notifications_all">All / none</string>
     <string name="new_video_notifications_no_channels">Follow or import some channels first</string>
     <string name="new_video_notifications_blocked">Notifications are blocked for TubeTube in Android settings: allow them there</string>
+    <string name="voice_search">Voice search</string>
+    <string name="voice_search_unavailable">No speech recognition app on this phone. Install one (e.g. FUTO Voice Input) or use the keyboard mic</string>
 </resources>

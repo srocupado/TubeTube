@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:layout_marginTop="4dp"
-        android:layout_marginRight="48dp"
+        android:layout_marginRight="96dp"
         android:layout_marginBottom="4dp"
         android:background="@null"
         android:focusable="true"
@@ -25,6 +25,33 @@
         android:nextFocusDown="@+id/suggestions_list"
         android:theme="@style/ToolbarSearchInputTheme"
         tools:ignore="RtlHardcoded" />
+
+    <!-- TubeTube: voice search -->
+    <FrameLayout
+        android:id="@+id/toolbar_search_voice"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="right|center_vertical"
+        android:layout_marginRight="48dp"
+        android:contentDescription="@string/voice_search"
+        android:focusable="true"
+        tools:ignore="RtlHardcoded">
+
+        <View
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_mic"
+            app:tint="?attr/toolbarSearchColor" />
+    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/toolbar_search_clear"
